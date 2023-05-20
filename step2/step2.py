@@ -17,6 +17,7 @@ bids=np.linspace(min_bid,max_bid,n_arms)
 sigma=10
 T=365 #horizon
 n_experiment=100
+best_price=30 #da cambiare vedere cosa esce da step 1
 
 customers = []
 customers.append(Customer('C1', -1.5, 0.5, 100))
@@ -28,6 +29,8 @@ gpts_rewards_cost_per_experiment=[]
 
 gpucb_rewards_num_per_experiment=[]
 gpts_rewards_num_per_experiment=[]
+
+
 
 # %%
 for e in range(0,n_experiment):
@@ -47,6 +50,8 @@ for e in range(0,n_experiment):
 
   gpts_rewards_cost_per_experiment.append(gpts_learner_cost.collected_rewards)
   gpucb_rewards_cost_per_experiment.append(gpucb_learner_cost.collected_rewards)
+
+
 
   env=BiddingEnvironmentClicks(bids=bids,sigma=sigma,customers[0])
   gpts_learner_clicks=GPTS_Learner_Lo(n_arms=n_arms,arms=bids)
@@ -70,7 +75,8 @@ for e in range(0,n_experiment):
 #prendere opt dal clairovoiant
 opt=np.max(env.means)
 
-reward=
+gpts_rewards_per_experiment=best_price*gpts_rewards_num_per_experiment-gpts_rewards_cost_per_experiment
+gpucb_rewards_per_experiment=best_price*gpucb_rewards_num_per_experiment-gpucb_rewards_cost_per_experiment
 
 x=list(range(1,T+1))
 # %%
