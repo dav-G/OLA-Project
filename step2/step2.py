@@ -31,10 +31,9 @@ gpucb_rewards_num_per_experiment=[]
 gpts_rewards_num_per_experiment=[]
 
 
-
 # %%
 for e in range(0,n_experiment):
-  env=BiddingEnvironmentCost(bids=bids,sigma=sigma,customers[0])
+  env=BiddingEnvironmentCost(bids=bids,sigma=sigma,custumer=customers[0])
   gpts_learner_cost=GPTS_Learner_Lo(n_arms=n_arms,arms=bids)
   gpucb_learner_cost=GPUCB_LO_Learner(n_arms=n_arms)
   for t in range (0,T):
@@ -53,7 +52,7 @@ for e in range(0,n_experiment):
 
 
 
-  env=BiddingEnvironmentClicks(bids=bids,sigma=sigma,customers[0])
+  env=BiddingEnvironmentClicks(bids=bids,sigma=sigma,custumer=customers[0])
   gpts_learner_clicks=GPTS_Learner_Lo(n_arms=n_arms,arms=bids)
   gpucb_learner_clicks=GPUCB_LO_Learner(n_arms=n_arms)
   for t in range (0,T):
