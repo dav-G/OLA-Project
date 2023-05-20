@@ -33,8 +33,8 @@ class GPUCB_LO_Learner(Learner):
         self.update_model()
 
     def pull_arm(self):
-        sampled_values=np.random.normal(self.means,self.sigmas)
-        return np.argmin(self.mu - self.sigma * np.sqrt(self.beta))
+        
+        return np.argmin(self.means - self.sigmas * np.sqrt(self.beta))
     
 class GPUCB_UP_Learner(Learner):
     def __init__(self,n_arms,arms,beta=100.):
@@ -65,6 +65,6 @@ class GPUCB_UP_Learner(Learner):
         self.update_model()
 
     def pull_arm(self):
-        sampled_values=np.random.normal(self.means,self.sigmas)
-        return np.argmax(self.mu + self.sigma * np.sqrt(self.beta))
+        
+        return np.argmax(self.means + self.sigmas * np.sqrt(self.beta))
     

@@ -3,7 +3,7 @@ import numpy as np
 class BiddingEnvironmentCost():
     def __init__(self,bids,sigma,customer):
         self.bids=bids
-        self.means=customer.cum_cost_clicks(self,bids)
+        self.means=customer.cum_cost_clicks(bids)
         self.sigmas=np.ones(len(bids))*sigma
 
     def round(self, pulled_arm):
@@ -12,7 +12,7 @@ class BiddingEnvironmentCost():
 class BiddingEnvironmentClicks():
     def __init__(self,bids,sigma,customer):
         self.bids=bids
-        self.means=customer.num_clicks(self,bids)
+        self.means=customer.num_clicks(bids)
         self.sigmas=np.ones(len(bids))*sigma
 
     def round(self, pulled_arm):

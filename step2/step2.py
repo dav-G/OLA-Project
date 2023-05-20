@@ -16,7 +16,7 @@ max_bid=1.0
 bids=np.linspace(min_bid,max_bid,n_arms)
 sigma=10
 T=365 #horizon
-n_experiment=100
+n_experiment=1
 best_price=30 #da cambiare vedere cosa esce da step 1
 
 customers = []
@@ -33,9 +33,9 @@ gpts_rewards_num_per_experiment=[]
 
 # %%
 for e in range(0,n_experiment):
-  env=BiddingEnvironmentCost(bids=bids,sigma=sigma,custumer=customers[0])
+  env=BiddingEnvironmentCost(bids,sigma,customers[0])
   gpts_learner_cost=GPTS_Learner_Lo(n_arms=n_arms,arms=bids)
-  gpucb_learner_cost=GPUCB_LO_Learner(n_arms=n_arms)
+  gpucb_learner_cost=GPUCB_LO_Learner(n_arms=n_arms,arms=bids)
   for t in range (0,T):
     #GPTS Learner
     pulled_arm=gpts_learner_cost.pull_arm()
@@ -52,9 +52,9 @@ for e in range(0,n_experiment):
 
 
 
-  env=BiddingEnvironmentClicks(bids=bids,sigma=sigma,custumer=customers[0])
+  env=BiddingEnvironmentClicks(bids,sigma,customers[0])
   gpts_learner_clicks=GPTS_Learner_Lo(n_arms=n_arms,arms=bids)
-  gpucb_learner_clicks=GPUCB_LO_Learner(n_arms=n_arms)
+  gpucb_learner_clicks=GPUCB_LO_Learner(n_arms=n_arms,arms=bids)
   for t in range (0,T):
     #GPTS Learner
     pulled_arm=gpts_learner_cost.pull_arm()
@@ -72,10 +72,11 @@ for e in range(0,n_experiment):
 
 # %%
 #prendere opt dal clairovoiant
-opt=np.max(env.means)
+opt=1.4
 
 gpts_rewards_per_experiment=best_price*gpts_rewards_num_per_experiment-gpts_rewards_cost_per_experiment
 gpucb_rewards_per_experiment=best_price*gpucb_rewards_num_per_experiment-gpucb_rewards_cost_per_experiment
+
 
 x=list(range(1,T+1))
 # %%
@@ -92,7 +93,7 @@ plt.show()
 plt.figure(0)
 plt.xlabel("t")
 plt.ylabel("Regret")
-GPUCB,=plt.plot(np.std(np.cumsum(np.mean(opt-gpucb_rewards_per_experiment, axis=0)),'r'))
+GPUCB,=plt.plot(np.std(np.cumsum(opt-gpucb_rewards_per_experiment,axis=0),axis=0),'r')
 GPTS,=plt.plot(np.std(np.cumsum(np.mean(opt-gpts_rewards_per_experiment, axis=0)),'b'))
 plt.legend([GPUCB,GPTS],["gpucb","GPTS"])
 plt.show()
