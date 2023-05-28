@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 from BiddingEnvironment import*
 from GPTS_Learner import*
 from GPUCB_Learner import*
+import pandas
 
 # %%
 n_arms=100
@@ -94,8 +95,15 @@ plt.show()
 plt.figure(0)
 plt.xlabel("t")
 plt.ylabel("Regret")
-GPUCB,=plt.plot(x,np.std(np.cumsum(np.mean(opt-gpucb_rewards_per_experiment,axis=0))),'r')
-GPTS,=plt.plot(x,np.std(np.cumsum(np.mean(opt-gpts_rewards_per_experiment, axis=0))),'b')
+
+stducb = [(np.cumsum(np.mean(opt-gpucb_rewards_per_experiment,axis=0)))[:i].std() for i in range(1,T+1)]
+stdts = [np.cumsum(np.mean(opt-gpts_rewards_per_experiment,axis=0))[:i].std() for i in range(1,T+1)]
+#exstducb=(np.cumsum(np.mean(opt-gpucb_rewards_per_experiment,axis=0))).expanding().std(ddof=0)
+#exstdts=(np.cumsum(np.mean(opt-gpts_rewards_per_experiment,axis=0))).expanding().std(ddof=0)
+#GPTS,=exstdts.plot(color='b')
+#GPUCB,=exstducb.plot(color='b')
+GPUCB,=plt.plot(stducb,'r')
+GPTS,=plt.plot(stdts,'b')
 plt.legend([GPUCB,GPTS],["gpucb","GPTS"])
 plt.show()
 #%%
