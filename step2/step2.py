@@ -94,8 +94,8 @@ plt.show()
 plt.figure(0)
 plt.xlabel("t")
 plt.ylabel("Regret")
-GPUCB,=plt.plot(np.std(np.cumsum(np.mean(opt-gpucb_rewards_per_experiment,axis=0))),'r')
-GPTS,=plt.plot(np.std(np.cumsum(np.mean(opt-gpts_rewards_per_experiment, axis=0))),'b')
+GPUCB,=plt.plot(x,np.std(np.cumsum(np.mean(opt-gpucb_rewards_per_experiment,axis=0))),'r')
+GPTS,=plt.plot(x,np.std(np.cumsum(np.mean(opt-gpts_rewards_per_experiment, axis=0))),'b')
 plt.legend([GPUCB,GPTS],["gpucb","GPTS"])
 plt.show()
 #%%
@@ -108,7 +108,7 @@ GPTS,=plt.plot(np.cumsum(np.mean(gpts_rewards_per_experiment, axis=0)),'b')
 plt.legend([GPUCB,GPTS],["gpucb","GPTS"])
 plt.show()
 #%%
-#istantaneous regret da sistemare
+#istantaneous regret
 plt.figure(0)
 plt.xlabel("t")
 plt.ylabel("Regret")
@@ -117,7 +117,7 @@ GPTS,=plt.plot(x,np.mean(opt-gpts_rewards_per_experiment,axis=0),'b')
 plt.legend([GPUCB,GPTS],["gpucb","GPTS"])
 plt.show()
 #%%
-#istantaneous reward da sistemare
+#istantaneous reward
 plt.figure(0)
 plt.xlabel("t")
 plt.ylabel("Regret")
