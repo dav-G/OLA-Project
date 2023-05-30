@@ -13,11 +13,11 @@ import pandas
 # %%
 n_arms=100
 min_bid=0.0
-max_bid=1.0
+max_bid=2.0
 bids=np.linspace(min_bid,max_bid,n_arms)
 sigma=10
-T=30 #horizon
-n_experiment=1
+T=120 #horizon ricordarsi di cambiare prima del run finale perchè deve essere 365
+n_experiment=5
 best_price=30 #da cambiare vedere cosa esce da step 1
 
 customers = []
@@ -78,8 +78,6 @@ opt=2500
 
 gpts_rewards_per_experiment=best_price*np.array(gpts_rewards_num_per_experiment)-np.array(gpts_rewards_cost_per_experiment)
 gpucb_rewards_per_experiment=best_price*np.array(gpucb_rewards_num_per_experiment)-np.array(gpucb_rewards_cost_per_experiment)
-
-
 x=list(range(0,T))
 # %%
 #Cumulative regret
@@ -88,6 +86,17 @@ plt.xlabel("t")
 plt.ylabel("Regret")
 GPUCB,=plt.plot(np.cumsum(np.mean(opt-gpucb_rewards_per_experiment, axis=0)),'r')
 GPTS,=plt.plot(np.cumsum(np.mean(opt-gpts_rewards_per_experiment, axis=0)),'b')
+plt.plot(np.cumsum(np.mean(opt-gpucb_rewards_per_experiment, axis=0))+np.std(gpucb_rewards_per_experiment,axis=0),'--r')
+plt.plot(np.cumsum(np.mean(opt-gpucb_rewards_per_experiment, axis=0))-np.std(gpucb_rewards_per_experiment,axis=0),'--r')
+plt.plot(np.cumsum(np.mean(opt-gpts_rewards_per_experiment, axis=0))+np.std(gpts_rewards_per_experiment,axis=0),'--b')
+plt.plot(np.cumsum(np.mean(opt-gpts_rewards_per_experiment, axis=0))-np.std(gpts_rewards_per_experiment,axis=0),'--b')
+
+#Real confidence intervals 95% too small to see on the graph
+#plt.plot(np.cumsum(np.mean(opt-gpucb_rewards_per_experiment, axis=0))+0.95*np.std(gpucb_rewards_per_experiment,axis=0)/n_experiment,'--r')
+#plt.plot(np.cumsum(np.mean(opt-gpucb_rewards_per_experiment, axis=0))-0.95*np.std(gpucb_rewards_per_experiment,axis=0)/n_experiment,'--r')
+#plt.plot(np.cumsum(np.mean(opt-gpts_rewards_per_experiment, axis=0))+0.95*np.std(gpts_rewards_per_experiment,axis=0)/n_experiment,'--b')
+#plt.plot(np.cumsum(np.mean(opt-gpts_rewards_per_experiment, axis=0))-0.95*np.std(gpts_rewards_per_experiment,axis=0)/n_experiment,'--b')
+
 plt.legend([GPUCB,GPTS],["gpucb","GPTS"])
 plt.show()
 # %%

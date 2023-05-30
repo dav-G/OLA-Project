@@ -5,7 +5,7 @@ from sklearn.gaussian_process.kernels import RBF, ConstantKernel as C
 
 
 class GPUCB_LO_Learner(Learner):
-    def __init__(self,n_arms,arms,beta=100.):
+    def __init__(self,n_arms,arms,beta=110.):
         super().__init__(n_arms)
         self.arms=arms
         self.means=np.zeros(self.n_arms)
@@ -37,7 +37,7 @@ class GPUCB_LO_Learner(Learner):
         return np.argmin(self.means - self.sigmas * np.sqrt(self.beta))
     
 class GPUCB_UP_Learner(Learner):
-    def __init__(self,n_arms,arms,beta=100.):
+    def __init__(self,n_arms,arms,beta=110.):
         super().__init__(n_arms)
         self.arms=arms
         self.means=np.zeros(self.n_arms)
