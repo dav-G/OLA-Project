@@ -5,14 +5,13 @@ from sklearn.gaussian_process.kernels import RBF, ConstantKernel as C
 
 
 class GPUCB_LO_Learner(Learner):
-    def __init__(self,n_arms,arms,beta=110.):
+    def __init__(self,n_arms,arms):
         super().__init__(n_arms)
         self.arms=arms
         self.means=np.zeros(self.n_arms)
         self.sigmas=np.ones(self.n_arms)*10
         self.pulled_arms=[]
         alpha=10.0
-        self.beta=beta
         kernel=C(1.0,(1e-3,1e3))*RBF(1.0,(1e-3,1e3))
         self.gp=GaussianProcessRegressor(kernel=kernel,alpha=alpha**2, normalize_y=True, n_restarts_optimizer=9)
 
@@ -32,19 +31,18 @@ class GPUCB_LO_Learner(Learner):
         self.update_observations(pulled_arm,reward)
         self.update_model()
 
-    def pull_arm(self):
+    def pull_arm(self,beta=100):
         
-        return np.argmin(self.means - self.sigmas * np.sqrt(self.beta))
+        return np.argmin(self.means - self.sigmas * np.sqrt(beta))
     
 class GPUCB_UP_Learner(Learner):
-    def __init__(self,n_arms,arms,beta=110.):
+    def __init__(self,n_arms,arms):
         super().__init__(n_arms)
         self.arms=arms
         self.means=np.zeros(self.n_arms)
         self.sigmas=np.ones(self.n_arms)*10
         self.pulled_arms=[]
         alpha=10.0
-        self.beta=beta
         kernel=C(1.0,(1e-3,1e3))*RBF(1.0,(1e-3,1e3))
         self.gp=GaussianProcessRegressor(kernel=kernel,alpha=alpha**2, normalize_y=True, n_restarts_optimizer=9)
 
@@ -64,7 +62,7 @@ class GPUCB_UP_Learner(Learner):
         self.update_observations(pulled_arm,reward)
         self.update_model()
 
-    def pull_arm(self):
+    def pull_arm(self,beta):
         
-        return np.argmax(self.means + self.sigmas * np.sqrt(self.beta))
+        return np.argmax(self.means + self.sigmas * np.sqrt(beta))
     

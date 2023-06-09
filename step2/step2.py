@@ -11,12 +11,12 @@ from GPUCB_Learner import*
 import pandas
 
 # %%
-n_arms=100
+n_arms=20 #da cambiare bisogna mettere 100 utilizzare uno minure solo per vedere le convergenze
 min_bid=0.0
 max_bid=2.0
 bids=np.linspace(min_bid,max_bid,n_arms)
 sigma=10
-T=120 #horizon ricordarsi di cambiare prima del run finale perchè deve essere 365
+T=300 #horizon ricordarsi di cambiare prima del run finale perchè deve essere 365
 n_experiment=5
 best_price=30 #da cambiare vedere cosa esce da step 1
 
@@ -25,45 +25,45 @@ customers.append(Customer('C1', -1.5, 0.5, 100))
 customers.append(Customer('C2', -0.5, -1.5, 80))
 customers.append(Customer('C3', -5, 0.3, 65))
 
+# %%
+
 gpucb_rewards_cost_per_experiment=[]
 gpts_rewards_cost_per_experiment=[]
 
 gpucb_rewards_num_per_experiment=[]
 gpts_rewards_num_per_experiment=[]
-
-
-# %%
 for e in range(0,n_experiment):
+  beta=0
   env1=BiddingEnvironmentCost(bids,sigma,customers[0])
   gpts_learner_cost=GPTS_Learner_Lo(n_arms=n_arms,arms=bids)
   gpucb_learner_cost=GPUCB_LO_Learner(n_arms=n_arms,arms=bids)
-  for t in range (0,T):
+  for t in range (1,T+1):
     #GPTS Learner
     pulled_arm=gpts_learner_cost.pull_arm()
     reward=env1.round(pulled_arm)
     gpts_learner_cost.update(pulled_arm, reward)
 
     #gpucb Learner
-    pulled_arm=gpucb_learner_cost.pull_arm()
+    beta=2*np.log(n_arms*t**2*np.pi**2/(6*0.05))
+    pulled_arm=gpucb_learner_cost.pull_arm(beta)
     reward=env1.round(pulled_arm)
     gpucb_learner_cost.update(pulled_arm, reward)
 
   gpts_rewards_cost_per_experiment.append(gpts_learner_cost.collected_rewards)
   gpucb_rewards_cost_per_experiment.append(gpucb_learner_cost.collected_rewards)
 
-
-
   env2=BiddingEnvironmentClicks(bids,sigma,customers[0])
   gpts_learner_clicks=GPTS_Learner_Lo(n_arms=n_arms,arms=bids)
   gpucb_learner_clicks=GPUCB_LO_Learner(n_arms=n_arms,arms=bids)
-  for t in range (0,T):
+  for t in range (1,T+1):
     #GPTS Learner
     pulled_arm=gpts_learner_cost.pull_arm()
     reward=env2.round(pulled_arm)
     gpts_learner_clicks.update(pulled_arm, reward)
 
     #gpucb Learner
-    pulled_arm=gpucb_learner_cost.pull_arm()
+    beta=2*np.log(n_arms*t**2*np.pi**2/(6*0.05))
+    pulled_arm=gpucb_learner_cost.pull_arm(beta)
     reward=env2.round(pulled_arm)
     gpucb_learner_clicks.update(pulled_arm, reward)
 
@@ -79,6 +79,8 @@ opt=2500
 gpts_rewards_per_experiment=best_price*np.array(gpts_rewards_num_per_experiment)-np.array(gpts_rewards_cost_per_experiment)
 gpucb_rewards_per_experiment=best_price*np.array(gpucb_rewards_num_per_experiment)-np.array(gpucb_rewards_cost_per_experiment)
 x=list(range(0,T))
+
+
 # %%
 #Cumulative regret
 plt.figure(0)
