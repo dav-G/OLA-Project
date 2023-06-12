@@ -16,7 +16,7 @@ min_bid=0.0
 max_bid=2.0
 bids=np.linspace(min_bid,max_bid,n_arms)
 sigma=10
-T=300 #horizon ricordarsi di cambiare prima del run finale perchè deve essere 365
+T=200 #horizon ricordarsi di cambiare prima del run finale perchè deve essere 365
 n_experiment=5
 best_price=30 #da cambiare vedere cosa esce da step 1
 
@@ -53,8 +53,8 @@ for e in range(0,n_experiment):
   gpucb_rewards_cost_per_experiment.append(gpucb_learner_cost.collected_rewards)
 
   env2=BiddingEnvironmentClicks(bids,sigma,customers[0])
-  gpts_learner_clicks=GPTS_Learner_Lo(n_arms=n_arms,arms=bids)
-  gpucb_learner_clicks=GPUCB_LO_Learner(n_arms=n_arms,arms=bids)
+  gpts_learner_clicks=GPTS_Learner(n_arms=n_arms,arms=bids)
+  gpucb_learner_clicks=GPUCB_UP_Learner(n_arms=n_arms,arms=bids)
   for t in range (1,T+1):
     #GPTS Learner
     pulled_arm=gpts_learner_cost.pull_arm()
