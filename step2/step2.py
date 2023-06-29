@@ -15,10 +15,11 @@ n_arms=20 #da cambiare bisogna mettere 100 utilizzare uno minure solo per vedere
 min_bid=0.0
 max_bid=2.0
 bids=np.linspace(min_bid,max_bid,n_arms)
-sigma=10
+sigma_num=15
+sigma_cost=0.5
 T=200 #horizon ricordarsi di cambiare prima del run finale perchè deve essere 365
-n_experiment=5
-best_price=30 #da cambiare vedere cosa esce da step 1
+n_experiment=10
+best_price=10 #da cambiare vedere cosa esce da step 1
 
 customers = []
 customers.append(Customer('C1', -1.5, 0.5, 100))
@@ -34,7 +35,7 @@ gpucb_rewards_num_per_experiment=[]
 gpts_rewards_num_per_experiment=[]
 for e in range(0,n_experiment):
   beta=0
-  env1=BiddingEnvironmentCost(bids,sigma,customers[0])
+  env1=BiddingEnvironmentCost(bids,sigma_cost,customers[0])
   gpts_learner_cost=GPTS_Learner_Lo(n_arms=n_arms,arms=bids)
   gpucb_learner_cost=GPUCB_LO_Learner(n_arms=n_arms,arms=bids)
   for t in range (1,T+1):
@@ -52,18 +53,18 @@ for e in range(0,n_experiment):
   gpts_rewards_cost_per_experiment.append(gpts_learner_cost.collected_rewards)
   gpucb_rewards_cost_per_experiment.append(gpucb_learner_cost.collected_rewards)
 
-  env2=BiddingEnvironmentClicks(bids,sigma,customers[0])
+  env2=BiddingEnvironmentClicks(bids,sigma_num,customers[0])
   gpts_learner_clicks=GPTS_Learner(n_arms=n_arms,arms=bids)
   gpucb_learner_clicks=GPUCB_UP_Learner(n_arms=n_arms,arms=bids)
   for t in range (1,T+1):
     #GPTS Learner
-    pulled_arm=gpts_learner_cost.pull_arm()
+    pulled_arm=gpts_learner_clicks.pull_arm()
     reward=env2.round(pulled_arm)
     gpts_learner_clicks.update(pulled_arm, reward)
 
     #gpucb Learner
     beta=2*np.log(n_arms*t**2*np.pi**2/(6*0.05))
-    pulled_arm=gpucb_learner_cost.pull_arm(beta)
+    pulled_arm=gpucb_learner_clicks.pull_arm(beta)
     reward=env2.round(pulled_arm)
     gpucb_learner_clicks.update(pulled_arm, reward)
 
@@ -73,12 +74,16 @@ for e in range(0,n_experiment):
 
 # %%
 #prendere opt dal clairovoiant
-opt=2500
+opt=1270
 
 
 gpts_rewards_per_experiment=best_price*np.array(gpts_rewards_num_per_experiment)-np.array(gpts_rewards_cost_per_experiment)
 gpucb_rewards_per_experiment=best_price*np.array(gpucb_rewards_num_per_experiment)-np.array(gpucb_rewards_cost_per_experiment)
 x=list(range(0,T))
+#cost=0.6
+#num=65
+#gpts_rewards_per_experiment=best_price*np.array(num)-np.array(gpts_rewards_cost_per_experiment)
+#gpucb_rewards_per_experiment=best_price*np.array(num)-np.array(gpucb_rewards_cost_per_experiment)
 
 
 # %%

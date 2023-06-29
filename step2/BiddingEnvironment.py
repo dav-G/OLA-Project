@@ -32,15 +32,13 @@ class Customer:
         C=self.clicks_c/50
         return 1.5*C*np.log10(1+bid/C)
     
-    def conversion_probability(self, price):
-        pass
 
-    def num_clicks_noise(self,bid):
-        noise_std=5.0
-        return self.num_clicks(self.bid) +np.random.normal(0,noise_std, size=self.num_clicks(self.bid).shape)
+   # def num_clicks_noise(self,bid):
+    #    noise_std=5.0
+     #   return self.num_clicks(self.bid) +np.random.normal(0,noise_std, size=self.num_clicks(self.bid).shape)
     
-    def cum_cost_clicks_noise(self,bid):
-        noise_std=5.0
-        return self.cum_cost_clicks(self.bid) +np.random.normal(0,noise_std, size=self.cum_cost_clicks(self.bid).shape)
+   # def cum_cost_clicks_noise(self,bid):
+    #    noise_std=5.0
+     #   return self.cum_cost_clicks(self.bid) +np.random.normal(0,noise_std, size=self.cum_cost_clicks(self.bid).shape)
                 
                 

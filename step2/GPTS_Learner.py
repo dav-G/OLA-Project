@@ -9,9 +9,9 @@ class GPTS_Learner(Learner):
         super().__init__(n_arms)
         self.arms=arms
         self.means=np.zeros(self.n_arms)
-        self.sigmas=np.ones(self.n_arms)*10
+        self.sigmas=np.ones(self.n_arms)*15
         self.pulled_arms=[]
-        alpha=10.0
+        alpha=15
         kernel=C(1.0,(1e-3,1e3))*RBF(1.0,(1e-3,1e3))
         self.gp=GaussianProcessRegressor(kernel=kernel,alpha=alpha**2, normalize_y=True, n_restarts_optimizer=9)
 
@@ -41,9 +41,9 @@ class GPTS_Learner_Lo(Learner):
         super().__init__(n_arms)
         self.arms=arms
         self.means=np.zeros(self.n_arms)
-        self.sigmas=np.ones(self.n_arms)*10
+        self.sigmas=np.ones(self.n_arms)*0.5
         self.pulled_arms=[]
-        alpha=10.0
+        alpha=0.5
         kernel=C(1.0,(1e-3,1e3))*RBF(1.0,(1e-3,1e3))
         self.gp=GaussianProcessRegressor(kernel=kernel,alpha=alpha**2, normalize_y=True, n_restarts_optimizer=9)
 
