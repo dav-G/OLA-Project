@@ -11,14 +11,14 @@ from GPUCB_Learner import*
 import pandas
 
 # %%
-n_arms=20 #da cambiare bisogna mettere 100 utilizzare uno minure solo per vedere le convergenze
+n_arms=100 #da cambiare bisogna mettere 100 utilizzare uno minure solo per vedere le convergenze
 min_bid=0.0
 max_bid=2.0
 bids=np.linspace(min_bid,max_bid,n_arms)
 sigma_num=15
 sigma_cost=0.5
-T=200 #horizon ricordarsi di cambiare prima del run finale perchè deve essere 365
-n_experiment=10
+T=365 #horizon ricordarsi di cambiare prima del run finale perchè deve essere 365
+n_experiment=5
 best_price=10 #da cambiare vedere cosa esce da step 1
 
 customers = []
@@ -74,7 +74,7 @@ for e in range(0,n_experiment):
 
 # %%
 #prendere opt dal clairovoiant
-opt=1270
+opt=700
 
 
 gpts_rewards_per_experiment=best_price*np.array(gpts_rewards_num_per_experiment)-np.array(gpts_rewards_cost_per_experiment)
@@ -82,7 +82,7 @@ gpucb_rewards_per_experiment=best_price*np.array(gpucb_rewards_num_per_experimen
 x=list(range(0,T))
 #cost=0.6
 #num=65
-#gpts_rewards_per_experiment=best_price*np.array(num)-np.array(gpts_rewards_cost_per_experiment)
+#gpts_rewards_per_experiment=best_price*np.array(num)-np.array(cost)
 #gpucb_rewards_per_experiment=best_price*np.array(num)-np.array(gpucb_rewards_cost_per_experiment)
 
 

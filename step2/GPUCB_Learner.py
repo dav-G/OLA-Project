@@ -11,7 +11,7 @@ class GPUCB_LO_Learner(Learner):
         self.means=np.zeros(self.n_arms)
         self.sigmas=np.ones(self.n_arms)*0.5
         self.pulled_arms=[]
-        alpha=0.5
+        alpha=1
         kernel=C(1.0,(1e-3,1e3))*RBF(1.0,(1e-3,1e3))
         self.gp=GaussianProcessRegressor(kernel=kernel,alpha=alpha**2, normalize_y=True, n_restarts_optimizer=9)
 
@@ -42,7 +42,7 @@ class GPUCB_UP_Learner(Learner):
         self.means=np.zeros(self.n_arms)
         self.sigmas=np.ones(self.n_arms)*10
         self.pulled_arms=[]
-        alpha=10.0
+        alpha=1
         kernel=C(1.0,(1e-3,1e3))*RBF(1.0,(1e-3,1e3))
         self.gp=GaussianProcessRegressor(kernel=kernel,alpha=alpha**2, normalize_y=True, n_restarts_optimizer=9)
 
