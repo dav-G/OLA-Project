@@ -20,8 +20,8 @@ T = 365
 n_experiments = 100
 ucb1_rewards_per_experiment = []
 ts_rewards_per_experiment = []
-ucb1_partial_rewards_per_experiment = [[] for i in range(n_arms)]
-ts_partial_rewards_per_experiment = [[] for i in range(n_arms)]
+#ucb1_partial_rewards_per_experiment = [[] for i in range(n_arms)]
+#ts_partial_rewards_per_experiment = [[] for i in range(n_arms)]
 
 for e in range(0, n_experiments):
     env = PricingEnvironment(prb)
