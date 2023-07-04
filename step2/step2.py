@@ -77,8 +77,8 @@ for e in range(0,n_experiment):
 opt=700
 
 
-gpts_rewards_per_experiment=best_price*np.array(gpts_rewards_num_per_experiment)-np.array(gpts_rewards_cost_per_experiment)
-gpucb_rewards_per_experiment=best_price*np.array(gpucb_rewards_num_per_experiment)-np.array(gpucb_rewards_cost_per_experiment)
+gpts_rewards_per_experiment=np.array(gpts_rewards_num_per_experiment)*(best_price-np.array(gpts_rewards_cost_per_experiment))
+gpucb_rewards_per_experiment=np.array(gpucb_rewards_num_per_experiment)*(best_price-np.array(gpucb_rewards_cost_per_experiment))
 x=list(range(0,T))
 #cost=0.6
 #num=65
