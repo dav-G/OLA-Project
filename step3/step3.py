@@ -27,7 +27,8 @@ n_experiment=5
 
 
 customers = []
-customers.append(Customer('C1', -1.5, 0.5, 100, [0.95,0.82,0.53,0.28,0.14]))
+
+customers.append(Customer('C1', -1.5, 0.1, 100, [0.95,0.82,0.53,0.28,0.14]))
 customers.append(Customer('C2', -0.5, -1.5, 80,[0.8,0.78,0.63,0.48,0.3]))
 customers.append(Customer('C3', -5, 0.3, 65,[0.7,0.6,0.41,0.22,0.1]))
 prb=customers[0].compute_pricing(prices)

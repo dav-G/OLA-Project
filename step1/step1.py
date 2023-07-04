@@ -7,7 +7,7 @@ from matplotlib import pyplot as plt
 import numpy as np
 
 n_arms = 5
-c1 = UserClass(np.array([10, 20, 30, 40, 50]), np.array([0.8, 0.6, 0.4, 0.2, 0.1]))
+c1 = UserClass(np.array([10, 20, 30, 40, 50]), np.array([0.95,0.82,0.53,0.28,0.14]))
 print((c1.prices-8) * c1.probabilities)
 prb=(c1.prices-8) * c1.probabilities
 prb=prb/np.sqrt(np.sum(prb**2))

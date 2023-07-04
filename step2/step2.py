@@ -22,7 +22,7 @@ n_experiment=5
 best_price=10 #da cambiare vedere cosa esce da step 1
 
 customers = []
-customers.append(Customer('C1', -1.5, 0.5, 100))
+customers.append(Customer('C1', -1.5, 0.1, 100))
 customers.append(Customer('C2', -0.5, -1.5, 80))
 customers.append(Customer('C3', -5, 0.3, 65))
 
