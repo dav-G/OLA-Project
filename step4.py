@@ -19,7 +19,7 @@ def generateContext(rewards, pulled_arms, pulled_arms_features, features):
 	pulled_arms = np.array(pulled_arms)
 	pulled_arms_features = np.array(pulled_arms_features)
 
-	delta = 0.9
+	delta = 1
 	for feature in features:
 		indexes1 = np.array( [ i for i,pulled_features in enumerate(pulled_arms_features) if pulled_features[feature] ] )
 		indexes2 = np.array( [ i for i,pulled_features in enumerate(pulled_arms_features) if not pulled_features[feature] ] )
@@ -33,18 +33,17 @@ def generateContext(rewards, pulled_arms, pulled_arms_features, features):
 		tmp = [0] * n_arms
 		for i in range(len(rewards1)):
 			tmp[arms1[i]] += rewards1[i]
-		expected_reward1 = np.max(tmp) - np.sqrt(-np.log(delta)/(2*len(rewards1)))
+		expected_reward1 = np.sum(tmp)/len(rewards1) - np.sqrt(-np.log(delta)/(2*len(rewards1)))
 		
 		tmp = [0] * n_arms
 		for i in range(len(rewards2)):
 			tmp[arms2[i]] += rewards2[i]
-		expected_reward2 = np.max(tmp) - np.sqrt(-np.log(delta)/(2*len(rewards2)))
+		expected_reward2 = np.sum(tmp)/len(rewards2) - np.sqrt(-np.log(delta)/(2*len(rewards2)))
 		
 		tmp = [0] * n_arms
 		for i in range(len(rewards)):
 			tmp[pulled_arms[i]] += rewards[i]
-		expected_reward = np.max(tmp) - np.sqrt(-np.log(delta)/(2*len(rewards)))
-		
+		expected_reward = np.sum(tmp)/len(rewards) - np.sqrt(-np.log(delta)/(2*len(rewards)))
 		
 		prob1 = len(rewards1)/len(rewards) - np.sqrt(-np.log(delta)/(2*len(rewards1)))
 		prob2 = len(rewards2)/len(rewards) - np.sqrt(-np.log(delta)/(2*len(rewards2)))
@@ -73,8 +72,8 @@ prices = [10, 20, 30, 40, 50]
 
 sigma = 5
 
-T = 60 #horizon ricordarsi di cambiare prima del run finale perchè deve essere 365
-n_experiment = 3
+T = 180 #horizon ricordarsi di cambiare prima del run finale perchè deve essere 365
+n_experiment = 5
 
 customers = []
 customers.append(Customer('C1', -0.0081, 0.97, 32, 3.8, -1.5, 0.1, 100, {'student': True, 'commuter': True}))
@@ -90,8 +89,6 @@ for e in range(0,n_experiment):
 	gpts_learner = GPTS_Context_Learner(n_arms=n_arms, arms=bids)
 	gpucb_learner = GPUCB_Context_Learner(n_arms=n_arms, arms=bids)
 	
-	print({'student':True}.items() <= {'student':True, 'commuter':False}.items())
-	
 	# gpts_learner.updateContexts([{'student': True}, {'student': False, 'commuter': True}, {'student': False, 'commuter': False}])
 	# gpucb_learner.updateContexts([{'student': True}, {'student': False, 'commuter': True}, {'student': False, 'commuter': False}])
 
@@ -106,6 +103,7 @@ for e in range(0,n_experiment):
 		if t%14 == 0:
 			contexts = generateContext(gpts_learner.collected_rewards, gpts_learner.pulled_arms_idx, gpts_learner.pulled_features, ['student', 'commuter'])
 			gpts_learner.updateContexts(contexts)
+			print(f'Context at time {t} for experiment {e}: {contexts}')
 
 		#gpucb Learner
 		beta = 2 * np.log(n_arms * t**2 * np.pi**2 /(6 * 0.05))
