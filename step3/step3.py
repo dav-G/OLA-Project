@@ -112,14 +112,11 @@ for e in range(0,n_experiment):
 #prendere opt dal clairovoiant
 opt=995.80
 
-
-gpts_rewards_per_experiment=np.array(gpts_rewards_num_per_experiment)*(np.array(ts_rewards_per_experiment)*18.741590113968453-np.array(gpts_rewards_cost_per_experiment))
-gpucb_rewards_per_experiment=np.array(gpucb_rewards_num_per_experiment)*(np.array( ucb1_rewards_per_experiment)*18.741590113968453-np.array(gpucb_rewards_cost_per_experiment))
+price_ts=np.mean(np.array(ts_rewards_per_experiment)*18.741590113968453)
+price_ucb=np.mean(np.array(ucb1_rewards_per_experiment)*18.741590113968453)
+gpts_rewards_per_experiment=np.array(gpts_rewards_num_per_experiment)*(price_ts-np.array(gpts_rewards_cost_per_experiment))
+gpucb_rewards_per_experiment=np.array(gpucb_rewards_num_per_experiment)*(price_ucb-np.array(gpucb_rewards_cost_per_experiment))
 x=list(range(0,T))
-#cost=0.6
-#num=65
-#gpts_rewards_per_experiment=best_price*np.array(num)-np.array(cost)
-#gpucb_rewards_per_experiment=best_price*np.array(num)-np.array(gpucb_rewards_cost_per_experiment)
 
 
 # %%
