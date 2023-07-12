@@ -6,11 +6,12 @@ warnings.warn = warn
 import numpy as np
 import matplotlib.pyplot as plt
 
-from Environment import Environment
+from Environment import ContextEnvironment
 from Learners import GPTS_Context_Learner, GPUCB_Context_Learner
 from Customer import Customer
 
 from plotResults import plot
+from clairvoyant import getOptimal
 
 
 def generateContext(rewards, pulled_arms, pulled_arms_features, features):
@@ -73,7 +74,7 @@ prices = [10, 20, 30, 40, 50]
 sigma = 5
 
 T = 60 #horizon ricordarsi di cambiare prima del run finale perchè deve essere 365
-n_experiment = 5
+n_experiment = 3
 
 customers = []
 customers.append(Customer('C1', -0.0081, 0.97, 32, 3.8, -1.5, 0.1, 100, {'student': True, 'commuter': True}))
@@ -85,14 +86,21 @@ gpts_rewards_per_experiment=[]
 
 for e in range(0,n_experiment):
 	beta = 0
-	env = Environment(prices, bids, sigma, customers)
+	env = ContextEnvironment(prices, bids, sigma, customers)
 	gpts_learner = GPTS_Context_Learner(n_arms=n_arms, arms=bids)
 	gpucb_learner = GPUCB_Context_Learner(n_arms=n_arms, arms=bids)
+	
+	print({'student':True}.items() <= {'student':True, 'commuter':False}.items())
+	
+	# gpts_learner.updateContexts([{'student': True}, {'student': False, 'commuter': True}, {'student': False, 'commuter': False}])
+	# gpucb_learner.updateContexts([{'student': True}, {'student': False, 'commuter': True}, {'student': False, 'commuter': False}])
 
 	for t in range (1,T+1):
+		features = env.getFeatures()
+		
 		#GPTS Learner
-		pulled_arm = gpts_learner.pull_arm()
-		reward, features = env.round(2, pulled_arm)
+		pulled_arm = gpts_learner.pull_arm(features)
+		reward = env.getReward(2, pulled_arm)
 		gpts_learner.update(pulled_arm, reward, features)
 
 		if t%14 == 0:
@@ -101,8 +109,8 @@ for e in range(0,n_experiment):
 
 		#gpucb Learner
 		beta = 2 * np.log(n_arms * t**2 * np.pi**2 /(6 * 0.05))
-		pulled_arm = gpucb_learner.pull_arm(beta)
-		reward, features = env.round(2, pulled_arm)
+		pulled_arm = gpucb_learner.pull_arm(beta, features)
+		reward = env.getReward(2, pulled_arm)
 		gpucb_learner.update(pulled_arm, reward, features)
 
 		if t%14 == 0:
@@ -116,6 +124,6 @@ for e in range(0,n_experiment):
 gpts_rewards_per_experiment = np.array(gpts_rewards_per_experiment)
 gpucb_rewards_per_experiment = np.array(gpucb_rewards_per_experiment)
 
-opt = 68
+opt = getOptimal()[2][0]
 
 plot(opt, T, [gpts_rewards_per_experiment, gpucb_rewards_per_experiment], ['GPTS', 'GPUCB'])
