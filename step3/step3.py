@@ -58,11 +58,11 @@ for e in range(0,n_experiment):
   gpts_learner_clicks=GPTS_Learner(n_arms=n_arms_ad,arms=bids)
   gpucb_learner_clicks=GPUCB_UP_Learner(n_arms=n_arms_ad,arms=bids)
   
-  envp = PricingEnvironment(prb)
+  envp = PricingEnvironment(probabilities)
   ucb1_learner = UCB1_Learner(n_arms_pr)
   ts_learner = TS_Learner(n_arms_pr)
 
-  for t in range (0,T):
+  for t in range (1,T+1):
     #GPTS Learner
     pulled_arm=gpts_learner_cost.pull_arm()
     reward=env1.round(pulled_arm)
@@ -110,7 +110,7 @@ for e in range(0,n_experiment):
 
 # %%
 #prendere opt dal clairovoiant
-opt=700
+opt=995.80
 
 
 gpts_rewards_per_experiment=np.array(gpts_rewards_num_per_experiment)*(np.array(ts_rewards_per_experiment)*18.741590113968453-np.array(gpts_rewards_cost_per_experiment))
