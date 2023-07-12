@@ -17,4 +17,4 @@ class UCB1_Learner(Learner):
         for a in range(self.n_arms):
             n_samples= len(self.rewards_per_arm[a])
             self.confidence[a]= np.sqrt(2*np.log(self.t)/n_samples) if n_samples>0 else np.inf
-            super().update_observations(pulled_arm, reward)
+        super().update_observations(pulled_arm, reward)

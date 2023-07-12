@@ -99,14 +99,16 @@ fig, axes = plt.subplots(5, 1, figsize=(8, 12), dpi=100, layout="constrained", g
 
 # %%
 # Cumulative regret
-axes[0].set_title("Cumulative regret")
-axes[0].set_xlabel('t')
-axes[0].set_ylabel('Reward')
-axes[0].plot(np.cumsum(ucb1_regret), 'r', label="Stationary UCB1")
-axes[0].plot(np.cumsum(swucb_w1_regret), 'b', label=r"$Sliding Window UCB1, window size = \frac{T}{2}$")
-axes[0].plot(np.cumsum(swucb_w2_regret), 'g', label=r"$Sliding Window UCB1, window size = \sqrt{T}$")
-axes[0].plot(np.cumsum(swucb_w3_regret), 'y', label=r"$Sliding Window UCB1, window size = 2 \sqrt{T}$")
-axes[0].legend(loc=0)
+plt.figure(0)
+plt.title("Cumulative regret")
+plt.xlabel('t')
+plt.ylabel('Reward')
+plt.plot(np.cumsum(ucb1_regret), 'r', label="Stationary UCB1")
+plt.plot(np.cumsum(swucb_w1_regret), 'b', label=r"$Sliding Window UCB1, window size = \frac{T}{2}$")
+plt.plot(np.cumsum(swucb_w2_regret), 'g', label=r"$Sliding Window UCB1, window size = \sqrt{T}$")
+plt.plot(np.cumsum(swucb_w3_regret), 'y', label=r"$Sliding Window UCB1, window size = 2 \sqrt{T}$")
+plt.legend(loc=0)
+plt.show()
 
 # %%
 # Standard deviation of cumulative regret
@@ -115,54 +117,57 @@ stdswucb_w1 = [(np.cumsum(swucb_w1_regret))[:i].std() for i in range(1, T + 1)]
 stdswucb_w2 = [(np.cumsum(swucb_w2_regret))[:i].std() for i in range(1, T + 1)]
 stdswucb_w3 = [(np.cumsum(swucb_w3_regret))[:i].std() for i in range(1, T + 1)]
 
-axes[1].set_title("Standard deviation of cumulative regret")
-axes[1].set_xlabel('t')
-axes[1].set_ylabel('Reward')
-axes[1].plot(stducb, 'r', label="Stationary UCB1")
-axes[1].plot(stdswucb_w1, 'b', label=r"$Sliding Window UCB1, window size = \frac{T}{2}$")
-axes[1].plot(stdswucb_w2, 'g', label=r"$Sliding Window UCB1, window size = \sqrt{T}$")
-axes[1].plot(stdswucb_w3, 'y', label=r"$Sliding Window UCB1, window size = 2 \sqrt{T}$")
-axes[1].legend(loc=0)
-
+plt.figure(0)
+plt.title("Standard deviation of cumulative regret")
+plt.xlabel('t')
+plt.ylabel('Reward')
+plt.plot(stducb, 'r', label="Stationary UCB1")
+plt.plot(stdswucb_w1, 'b', label=r"$Sliding Window UCB1, window size = \frac{T}{2}$")
+plt.plot(stdswucb_w2, 'g', label=r"$Sliding Window UCB1, window size = \sqrt{T}$")
+plt.plot(stdswucb_w3, 'y', label=r"$Sliding Window UCB1, window size = 2 \sqrt{T}$")
+plt.legend(loc=0)
+plt.show()
 # %%
 # Cumulative reward
-axes[2].set_title("Cumulative reward")
-axes[2].set_xlabel('t')
-axes[2].set_ylabel('Reward')
-axes[2].plot(np.cumsum(np.mean(ucb1_rewards_per_experiment, axis=0)), 'r', label="Stationary UCB1")
-axes[2].plot(np.cumsum(np.mean(swucb_w1_rewards_per_experiment, axis=0)), 'b',
+plt.figure(0)
+plt.set_title("Cumulative reward")
+plt.set_xlabel('t')
+plt.set_ylabel('Reward')
+plt.plot(np.cumsum(np.mean(ucb1_rewards_per_experiment, axis=0)), 'r', label="Stationary UCB1")
+plt.plot(np.cumsum(np.mean(swucb_w1_rewards_per_experiment, axis=0)), 'b',
                 label=r"$Sliding Window UCB1, window size = \frac{T}{2}$")
-axes[2].plot(np.cumsum(np.mean(swucb_w2_rewards_per_experiment, axis=0)), 'g',
+plt.plot(np.cumsum(np.mean(swucb_w2_rewards_per_experiment, axis=0)), 'g',
                 label=r"$Sliding Window UCB1, window size = \sqrt{T}$")
-axes[2].plot(np.cumsum(np.mean(swucb_w3_rewards_per_experiment, axis=0)), 'y',
+plt.plot(np.cumsum(np.mean(swucb_w3_rewards_per_experiment, axis=0)), 'y',
                 label=r"$Sliding Window UCB1, window size = 2 \sqrt{T}$")
-axes[2].legend(loc=0)
-
+plt.legend(loc=0)
+plt.show()
 # %%
 # Instantaneous regret
-axes[3].set_title("Instantaneous regret")
-axes[3].set_xlabel('t')
-axes[3].set_ylabel('Reward')
-axes[3].plot(np.cumsum(ucb1_instantaneous_regret), 'r', label="Stationary UCB1")
-axes[3].plot(np.cumsum(swucb_w1_instantaneous_regret), 'b',
+plt.figure(0)
+plt.set_title("Instantaneous regret")
+plt.set_xlabel('t')
+plt.set_ylabel('Reward')
+plt.plot(np.cumsum(ucb1_instantaneous_regret), 'r', label="Stationary UCB1")
+plt.plot(np.cumsum(swucb_w1_instantaneous_regret), 'b',
                 label=r"$Sliding Window UCB1, window size = \frac{T}{2}$")
-axes[3].plot(np.cumsum(swucb_w2_instantaneous_regret), 'g', label=r"$Sliding Window UCB1, window size = \sqrt{T}$")
-axes[3].plot(np.cumsum(swucb_w3_instantaneous_regret), 'y', label=r"$Sliding Window UCB1, window size = 2 \sqrt{T}$")
-axes[3].legend(loc=0)
-
+plt.plot(np.cumsum(swucb_w2_instantaneous_regret), 'g', label=r"$Sliding Window UCB1, window size = \sqrt{T}$")
+plt.plot(np.cumsum(swucb_w3_instantaneous_regret), 'y', label=r"$Sliding Window UCB1, window size = 2 \sqrt{T}$")
+plt.legend(loc=0)
+plt.show()
 # %%
 # Instantaneous reward
-axes[4].set_title("Instantaneous regret")
-axes[4].set_xlabel('t')
-axes[4].set_ylabel('Reward')
-axes[4].plot(np.mean(ucb1_rewards_per_experiment, axis=0), 'r', label="Stationary UCB1")
-axes[4].plot(np.mean(swucb_w1_instantaneous_regret, axis=0), 'b',
+plt.figure(0)
+plt.set_title("Instantaneous regret")
+plt.set_xlabel('t')
+plt.set_ylabel('Reward')
+plt.plot(np.mean(ucb1_rewards_per_experiment, axis=0), 'r', label="Stationary UCB1")
+plt.plot(np.mean(swucb_w1_instantaneous_regret, axis=0), 'b',
                 label=r"$Sliding Window UCB1, window size = \frac{T}{2}$")
-axes[4].plot(np.mean(swucb_w2_instantaneous_regret, axis=0), 'g',
+plt.plot(np.mean(swucb_w2_instantaneous_regret, axis=0), 'g',
                 label=r"$Sliding Window UCB1, window size = \sqrt{T}$")
-axes[4].plot(np.mean(swucb_w3_instantaneous_regret, axis=0), 'y',
+plt.plot(np.mean(swucb_w3_instantaneous_regret, axis=0), 'y',
                 label=r"$Sliding Window UCB1, window size = 2 \sqrt{T}$")
-axes[4].plot(optimum_per_round, 'k--', label="Optimum")
-axes[4].legend(loc=0)
-
+plt.plot(optimum_per_round, 'k--', label="Optimum")
+plt.legend(loc=0)
 plt.show()
