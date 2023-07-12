@@ -1,14 +1,15 @@
 import numpy as np
 
 class PricingEnvironment():
-	def __init__(self, prices, customers):
+	def __init__(self, prices, customers, norm_gain):
 		self.customers = customers
 		self.prices = prices
+		self.norm_gain=norm_gain
 
 	def round(self, pulled_arm):
 		i = int(np.random.rand() * len(self.customers))
-
-		return (np.random.binomial(1, self.customers[i].conversion_probability(self.prices[pulled_arm])),
+		
+		return (np.random.binomial(1, self.norm_gain[pulled_arm]),
 				self.customers[i].features)
 	
 	

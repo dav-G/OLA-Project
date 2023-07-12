@@ -11,15 +11,21 @@ from clairvoyant import getOptimal
 
 c1 = Customer('C1', -0.0081, 0.97, 32, 3.8, -1.5, 0.1, 100)
 prices = [10, 20, 30, 40, 50]
+prices=np.array(prices)
+T = 365
+n_experiments = 100
+norm_gain=[]
 
-T = 60
-n_experiments = 5
+prb=c1.conversion_probability(np.array(prices))
+gain=(prices-8)*prb
+norm_gain=gain/np.sqrt(np.sum(gain**2))
+c=gain[0]/norm_gain[0]
 
 ucb1_rewards_per_experiment = []
 ts_rewards_per_experiment = []
 
 for e in range(0, n_experiments):
-    env = PricingEnvironment(prices, [c1])
+    env = PricingEnvironment(prices, [c1], norm_gain)
     ucb1_learner = UCB1_Learner(len(prices), prices)
     ts_learner = TS_Learner(len(prices), prices)
 	
@@ -37,9 +43,9 @@ for e in range(0, n_experiments):
     ts_rewards_per_experiment.append(ts_learner.collected_rewards)
     ucb1_rewards_per_experiment.append(ucb1_learner.collected_rewards)
 
-ts_rewards_per_experiment = np.array(ts_rewards_per_experiment)
-ucb1_rewards_per_experiment = np.array(ucb1_rewards_per_experiment)
+ts_rewards_per_experiment = np.array(ts_rewards_per_experiment)*c
+ucb1_rewards_per_experiment = np.array(ucb1_rewards_per_experiment)*c
 
-opt = 11.66
+opt = 11.79
 
-plot(opt, T, (ucb1_rewards_per_experiment, ts_rewards_per_experiment), ('UCB1', 'TS'))
+plot(opt, T, [ucb1_rewards_per_experiment, ts_rewards_per_experiment], ['UCB1', 'TS'])

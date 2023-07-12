@@ -53,20 +53,7 @@ def plot(optimal, T, datasets, labels):
 	plt.legend(plots, labels)
 	plt.show()
 	
-	# STANDARD DEVIATION OF CUMULATIVE REGRET
-	# DA SISTEMARE
-	plots = []
-	for i in range(len(datasets)):
-		plt.figure(0)
-		plt.xlabel("t")
-		plt.ylabel("Standard deviation of cumulative regret")
 
-		std = [(np.cumsum(np.mean(optimal - datasets[i],axis=0)))[:i].std() for i in range(1,T+1)]
-		plots.append(plt.plot(std)[0])
-		
-	plt.legend(plots, labels)
-	plt.show()
-	
 	
 	
 
