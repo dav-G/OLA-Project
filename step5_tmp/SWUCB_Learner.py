@@ -22,4 +22,4 @@ class SWUCB_Learner(UCB1_Learner):
         for arm in range(self.n_arms):
             n_samples = np.sum(self.pulled_arms[-self.window_size:]==arm)
             self.confidence[arm]= np.sqrt((2 * np.log(self.t) / n_samples)) if n_samples>0 else np.inf            
-            super().update_observations(pulled_arm, reward)        
+        super().update_observations(pulled_arm, reward)        
