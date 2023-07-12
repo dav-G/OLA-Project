@@ -60,7 +60,7 @@ for e in range(0, n_experiments):
         reward = swucb_w2_env.round(pulled_arm)
         swucb_learner_w2.update(pulled_arm, reward)
 
-        # UCB1 window size = 2
+        # UCB1 window size = 2 * sqrt(T)
         pulled_arm = int(swucb_learner_w3.pull_arm())
         reward = swucb_w3_env.round(pulled_arm)
         swucb_learner_w3.update(pulled_arm, reward)
@@ -114,17 +114,23 @@ for i in range(n_phases):
     swucb_w2_instantaneous_regret[t_index] = opt_per_phase[i] - np.mean(swucb_w2_rewards_per_experiment, axis=0)[t_index]
     swucb_w3_instantaneous_regret[t_index] = opt_per_phase[i] - np.mean(swucb_w3_rewards_per_experiment, axis=0)[t_index]
     cducb_instantaneous_regret[t_index] = opt_per_phase[i] - np.mean(cducb_rewards_per_experiment, axis=0)[t_index]
+
+ucb1_label = "Stationary UCB1"
+swucb_w1_label = r"$SW\ UCB1,\ window\ size=\frac{T}{2}$"
+swucb_w2_label = r"$SW\ UCB1,\ window\ size=\sqrt{T}$"
+swucb_w3_label = r"$SW\ UCB1,\ window\ size=2 \sqrt{T}$"
+cducb_label = "CUSUM UCB1"
 # %%
 # Cumulative regret
 plt.figure("Cumulative regret")
 plt.title("Cumulative regret")
 plt.xlabel('t')
 plt.ylabel('Regret')
-plt.plot(np.cumsum(ucb1_regret), 'r', label="Stationary UCB1")
-plt.plot(np.cumsum(swucb_w1_regret), 'b', label=r"$Sliding Window UCB1, window size = \frac{T}{2}$")
-plt.plot(np.cumsum(swucb_w2_regret), 'g', label=r"$Sliding Window UCB1, window size = \sqrt{T}$")
-plt.plot(np.cumsum(swucb_w3_regret), 'y', label=r"$Sliding Window UCB1, window size = 2 \sqrt{T}$")
-plt.plot(np.cumsum(cducb_regret), 'm', label="CUSUM UCB1")
+plt.plot(np.cumsum(ucb1_regret), 'r', label=ucb1_label)
+plt.plot(np.cumsum(swucb_w1_regret), 'b', label=swucb_w1_label)
+plt.plot(np.cumsum(swucb_w2_regret), 'g', label=swucb_w2_label)
+plt.plot(np.cumsum(swucb_w3_regret), 'y', label=swucb_w3_label)
+plt.plot(np.cumsum(cducb_regret), 'm', label=cducb_label)
 plt.legend(loc=0)
 plt.show()
 # %%
@@ -139,11 +145,11 @@ plt.figure("Standard deviation of cumulative regret")
 plt.title("Standard deviation of cumulative regret")
 plt.xlabel('t')
 plt.ylabel('Regret')
-plt.plot(stducb, 'r', label="Stationary UCB1")
-plt.plot(stdswucb_w1, 'b', label=r"$Sliding Window UCB1, window size = \frac{T}{2}$")
-plt.plot(stdswucb_w2, 'g', label=r"$Sliding Window UCB1, window size = \sqrt{T}$")
-plt.plot(stdswucb_w3, 'y', label=r"$Sliding Window UCB1, window size = 2 \sqrt{T}$")
-plt.plot(stdcducb, 'm', label="CUSUM UCB1")
+plt.plot(stducb, 'r', label=ucb1_label)
+plt.plot(stdswucb_w1, 'b', label=swucb_w1_label)
+plt.plot(stdswucb_w2, 'g', label=swucb_w2_label)
+plt.plot(stdswucb_w3, 'y', label=swucb_w3_label)
+plt.plot(stdcducb, 'm', label=cducb_label)
 plt.legend(loc=0)
 plt.show()
 # %%
@@ -152,15 +158,11 @@ plt.figure("Cumulative reward")
 plt.title("Cumulative reward")
 plt.xlabel('t')
 plt.ylabel('Reward')
-plt.plot(np.cumsum(np.mean(ucb1_rewards_per_experiment, axis=0)), 'r', label="Stationary UCB1")
-plt.plot(np.cumsum(np.mean(swucb_w1_rewards_per_experiment, axis=0)), 'b',
-                label=r"$Sliding Window UCB1, window size = \frac{T}{2}$")
-plt.plot(np.cumsum(np.mean(swucb_w2_rewards_per_experiment, axis=0)), 'g',
-                label=r"$Sliding Window UCB1, window size = \sqrt{T}$")
-plt.plot(np.cumsum(np.mean(swucb_w3_rewards_per_experiment, axis=0)), 'y',
-                label=r"$Sliding Window UCB1, window size = 2 \sqrt{T}$")
-plt.plot(np.cumsum(np.mean(cducb_rewards_per_experiment, axis=0)), 'm',
-                label="CUSUM UCB1")
+plt.plot(np.cumsum(np.mean(ucb1_rewards_per_experiment, axis=0)), 'r', label=ucb1_label)
+plt.plot(np.cumsum(np.mean(swucb_w1_rewards_per_experiment, axis=0)), 'b', label=swucb_w1_label)
+plt.plot(np.cumsum(np.mean(swucb_w2_rewards_per_experiment, axis=0)), 'g', label=swucb_w2_label)
+plt.plot(np.cumsum(np.mean(swucb_w3_rewards_per_experiment, axis=0)), 'y', label=swucb_w3_label)
+plt.plot(np.cumsum(np.mean(cducb_rewards_per_experiment, axis=0)), 'm', label=cducb_label)
 plt.legend(loc=0)
 plt.show()
 # %%
@@ -169,11 +171,11 @@ plt.figure("Instantaneous regret")
 plt.title("Instantaneous regret")
 plt.xlabel('t')
 plt.ylabel('Regret')
-plt.plot(np.cumsum(ucb1_instantaneous_regret), 'r', label="Stationary UCB1")
-plt.plot(np.cumsum(swucb_w1_instantaneous_regret), 'b', label=r"$Sliding Window UCB1, window size = \frac{T}{2}$")
-plt.plot(np.cumsum(swucb_w2_instantaneous_regret), 'g', label=r"$Sliding Window UCB1, window size = \sqrt{T}$")
-plt.plot(np.cumsum(swucb_w3_instantaneous_regret), 'y', label=r"$Sliding Window UCB1, window size = 2 \sqrt{T}$")
-plt.plot(np.cumsum(cducb_instantaneous_regret), 'm', label="CUSUM UCB1")
+plt.plot(np.cumsum(ucb1_instantaneous_regret), 'r', label=ucb1_label)
+plt.plot(np.cumsum(swucb_w1_instantaneous_regret), 'b', label=swucb_w1_label)
+plt.plot(np.cumsum(swucb_w2_instantaneous_regret), 'g', label=swucb_w2_label)
+plt.plot(np.cumsum(swucb_w3_instantaneous_regret), 'y', label=swucb_w3_label)
+plt.plot(np.cumsum(cducb_instantaneous_regret), 'm', label=cducb_label)
 plt.legend(loc=0)
 plt.show()
 # %%
@@ -182,11 +184,11 @@ plt.figure("Instantaneous reward")
 plt.title("Instantaneous reward")
 plt.xlabel('t')
 plt.ylabel('Reward')
-plt.plot(np.mean(ucb1_rewards_per_experiment, axis=0), 'r', label="Stationary UCB1")
-plt.plot(np.mean(swucb_w1_rewards_per_experiment, axis=0), 'b', label=r"$Sliding Window UCB1, window size = \frac{T}{2}$")
-plt.plot(np.mean(swucb_w2_rewards_per_experiment, axis=0), 'g', label=r"$Sliding Window UCB1, window size = \sqrt{T}$")
-plt.plot(np.mean(swucb_w3_rewards_per_experiment, axis=0), 'y', label=r"$Sliding Window UCB1, window size = 2 \sqrt{T}$")
-plt.plot(np.mean(cducb_rewards_per_experiment, axis=0), 'm', label="CUSUM UCB1")
+plt.plot(np.mean(ucb1_rewards_per_experiment, axis=0), 'r', label=ucb1_label)
+plt.plot(np.mean(swucb_w1_rewards_per_experiment, axis=0), 'b', label=swucb_w1_label)
+plt.plot(np.mean(swucb_w2_rewards_per_experiment, axis=0), 'g', label=swucb_w2_label)
+plt.plot(np.mean(swucb_w3_rewards_per_experiment, axis=0), 'y', label=swucb_w3_label)
+plt.plot(np.mean(cducb_rewards_per_experiment, axis=0), 'm', label=cducb_label)
 plt.plot(optimum_per_round, 'k--', label="Optimum")
 plt.legend(loc=0)
 plt.show()
