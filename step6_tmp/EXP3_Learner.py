@@ -16,6 +16,8 @@ class EXP3_Learner(Learner):
 
     def update(self, pulled_arm, reward):
         self.estimated_rewards[pulled_arm] = reward/self.p[pulled_arm]
-        self.weights[pulled_arm] = self.weights[pulled_arm]*np.exp(self.estimated_rewards[pulled_arm]*self.gamma/self.n_arms)
+        self.weights[pulled_arm] = self.weights[pulled_arm]*np.exp(
+            self.estimated_rewards[pulled_arm]*self.gamma/self.n_arms
+        )
         self.t += 1
         super().update_observations(pulled_arm, reward)

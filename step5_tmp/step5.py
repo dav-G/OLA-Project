@@ -11,7 +11,7 @@ from math import sqrt
 n_arms = 5
 c1 = UserClass(
     np.array([10, 20, 30, 40, 50]),
-    np.array([[0.95, 0.82, 0.53, 0.28, 0.14], [0.95, 0.64, 0.96, 0.08, 0.14], [0.05, 0.64, 0.96, 0.08, 0.64]])
+    np.array([[0.95, 0.82, 0.53, 0.28, 0.14], [0.05, 0.14, 0.96, 0.08, 0.01], [0.75, 0.64, 0.26, 0.82, 0.12]])
 )
 prb = (c1.prices - 8) * c1.probabilities
 prb = prb / np.sqrt(np.sum(prb ** 2))
@@ -39,7 +39,7 @@ for e in range(0, n_experiments):
     cducb_env = Non_Stationary_Environment(prb, T, n_phases)
 
     ucb1_learner = UCB1_Learner(n_arms)
-    swucb_learner_w1 = SWUCB_Learner(n_arms, int(T // 2))
+    swucb_learner_w1 = SWUCB_Learner(n_arms, int(0.5 * sqrt(T)))
     swucb_learner_w2 = SWUCB_Learner(n_arms, int(sqrt(T)))
     swucb_learner_w3 = SWUCB_Learner(n_arms, int(2 * sqrt(T)))
     cducb_learner = CDUCB_Learner(n_arms, M, eps, h, alpha)
@@ -50,17 +50,17 @@ for e in range(0, n_experiments):
         reward = ucb1_env.round(pulled_arm)
         ucb1_learner.update(pulled_arm, reward)
 
-        # UCB1 window size = T
+        # SWUCB1 window size = 0.5 * sqrt(T)
         pulled_arm = swucb_learner_w1.pull_arm()
         reward = swucb_w1_env.round(pulled_arm)
         swucb_learner_w1.update(pulled_arm, reward)
 
-        # UCB1 window size = sqrt(T)
+        # SWUCB1 window size = sqrt(T)
         pulled_arm = swucb_learner_w2.pull_arm()        
         reward = swucb_w2_env.round(pulled_arm)
         swucb_learner_w2.update(pulled_arm, reward)
 
-        # UCB1 window size = 2 * sqrt(T)
+        # SWUCB1 window size = 2 * sqrt(T)
         pulled_arm = swucb_learner_w3.pull_arm()
         reward = swucb_w3_env.round(pulled_arm)
         swucb_learner_w3.update(pulled_arm, reward)
@@ -116,7 +116,7 @@ for i in range(n_phases):
     cducb_instantaneous_regret[t_index] = opt_per_phase[i] - np.mean(cducb_rewards_per_experiment, axis=0)[t_index]
 
 ucb1_label = "Stationary UCB1"
-swucb_w1_label = r"$SW\ UCB1,\ window\ size=\frac{T}{2}$"
+swucb_w1_label = r"$SW\ UCB1,\ window\ size=\frac{1}{2}\ \sqrt{T}$"
 swucb_w2_label = r"$SW\ UCB1,\ window\ size=\sqrt{T}$"
 swucb_w3_label = r"$SW\ UCB1,\ window\ size=2 \sqrt{T}$"
 cducb_label = "CUSUM UCB1"
