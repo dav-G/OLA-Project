@@ -56,17 +56,17 @@ for e in range(0, n_experiments):
         swucb_learner_w1.update(pulled_arm, reward)
 
         # UCB1 window size = sqrt(T)
-        pulled_arm = int(swucb_learner_w2.pull_arm())
+        pulled_arm = swucb_learner_w2.pull_arm()        
         reward = swucb_w2_env.round(pulled_arm)
         swucb_learner_w2.update(pulled_arm, reward)
 
         # UCB1 window size = 2 * sqrt(T)
-        pulled_arm = int(swucb_learner_w3.pull_arm())
+        pulled_arm = swucb_learner_w3.pull_arm()
         reward = swucb_w3_env.round(pulled_arm)
         swucb_learner_w3.update(pulled_arm, reward)
 
         # CUSUM UCB
-        pulled_arm = int(cducb_learner.pull_arm())
+        pulled_arm = cducb_learner.pull_arm()
         reward = cducb_env.round(pulled_arm)
         cducb_learner.update(pulled_arm, reward)
 
