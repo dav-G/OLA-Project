@@ -57,3 +57,28 @@ class Environment():
 		
 		return (sold - clicks * click_cost,
 				self.customers[i].features)
+				
+				
+class ContextEnvironment():
+	def __init__(self, prices, bids, sigma, customers):
+		self.customers = customers
+		self.bids = bids
+		self.prices = prices
+		
+		self.sigmas = np.ones(len(bids)) * sigma
+		
+		self.item_cost = 8
+
+	def getFeatures(self):
+		self.i = int(np.random.rand() * len(self.customers))
+		return self.customers[self.i].features
+				
+	def getReward(self, pulled_price, pulled_bid):
+		i = self.i
+		
+		clicks = np.random.normal(self.customers[i].num_clicks(self.bids[pulled_bid]), self.sigmas[pulled_bid])
+		click_cost = np.random.normal(self.customers[i].click_cost(self.bids[pulled_bid]), self.sigmas[pulled_bid])
+		
+		sold = (self.prices[pulled_price] - self.item_cost) * np.random.binomial(max(clicks,0), self.customers[i].conversion_probability(self.prices[pulled_price]))
+		
+		return sold - clicks * click_cost

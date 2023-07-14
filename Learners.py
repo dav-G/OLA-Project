@@ -66,7 +66,7 @@ class UCB1_Learner(Learner):
 
 class GPLearner(Learner):
 	def __init__(self,n_arms,arms):
-		super().__init__(n_arms,arms)
+		super().__init__(n_arms,arms, arms)
 		self.arms=arms
 		self.means=np.zeros(self.n_arms)
 		self.sigmas=np.ones(self.n_arms)*5
@@ -104,6 +104,8 @@ class GP_Context_Learner(GPLearner):
 		self.pulled_arms_idx=[]
 		self.pulled_features=[]
 		self.contexts=[]
+		self.contexted_pulled_arms=[]
+		self.contexted_collected_rewards=[]
 
 	def update_observations(self,arm_idx, reward, features):
 		super().update_observations(arm_idx,reward)
@@ -133,7 +135,6 @@ class GP_Context_Learner(GPLearner):
 	def update(self,pulled_arm,reward, features):
 		self.t+=1
 		self.update_observations(pulled_arm,reward,features)
-		self.update_model(features)
 
 	def updateContexts(self, contexts):
 		self.contexts = contexts
@@ -145,14 +146,20 @@ class GP_Context_Learner(GPLearner):
 			self.contexted_pulled_arms.append([])
 
 			for i,feature in enumerate(self.pulled_features):
-				if context.items() < feature.items():
+				if context.items() <= feature.items():
 					self.contexted_collected_rewards[-1].append(self.collected_rewards[i])
 					self.contexted_pulled_arms[-1].append(self.pulled_arms[i])
 				
 class GPTS_Context_Learner(GP_Context_Learner):
-	def pull_arm(self):
+	def pull_arm(self, features):
+		for i,context in enumerate(self.contexts):
+			if context.items() <= features.items() and len(self.contexted_collected_rewards[i]) > 0:
+				self.update_model(features)
 		return np.argmax(np.random.normal(self.means, self.sigmas))
 
 class GPUCB_Context_Learner(GP_Context_Learner):
-	def pull_arm(self,beta):
+	def pull_arm(self, beta, features):
+		for i,context in enumerate(self.contexts):
+			if context.items() <= features.items() and len(self.contexted_collected_rewards[i]) > 0:
+				self.update_model(features)
 		return np.argmax(self.means + self.sigmas * np.sqrt(beta))
