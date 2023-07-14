@@ -20,25 +20,31 @@ class Learner:
 
 		
 class TS_Learner(Learner):
-	def __init__(self, n_arms, arms):
+	def __init__(self, n_arms, arms,margin,clicks,cost):
 		super().__init__(n_arms, arms)
 		self.beta_parameters = np.ones((n_arms, 2))
+		self.margin=margin
+		self.clicks=clicks
+		self.cost=cost
 
 	def pull_arm(self):
-		idx = np.argmax(np.random.beta(self.beta_parameters[:,0], self.beta_parameters[:,1]))
+		idx = np.argmax(np.random.beta(self.beta_parameters[:,0], self.beta_parameters[:,1])*self.margin[:]-self.clicks*self.cost)
 		return idx
 
 	def update(self, pulled_arm, reward):
 		self.t+=1
-		self.update_observations(pulled_arm, reward)
+		self.update_observations(pulled_arm, self.margin[pulled_arm]*reward-self.clicks*self.cost)
 		self.beta_parameters[pulled_arm, 0] = self.beta_parameters[pulled_arm, 0] + reward
-		self.beta_parameters[pulled_arm, 1] = self.beta_parameters[pulled_arm, 1] + 1.0 - reward
+		self.beta_parameters[pulled_arm, 1] = self.beta_parameters[pulled_arm, 1] + self.clicks - reward
 
 class UCB1_Learner(Learner):
-	def __init__(self, n_arms, arms):
+	def __init__(self, n_arms, arms,margin,clicks,cost):
 		super().__init__(n_arms, arms)
 		self.pulled_arms_counts = [0] * n_arms
 		self.ucb_values = [0] * n_arms
+		self.margin=margin
+		self.clicks=clicks
+		self.cost=cost
 
 	def pull_arm(self):
 		if self.t < self.n_arms:
@@ -52,7 +58,7 @@ class UCB1_Learner(Learner):
 		return np.argmax(self.ucb_values)
 
 	def update(self, pulled_arm, reward):
-		super().update_observations(pulled_arm, reward)
+		super().update_observations(pulled_arm, self.margin[pulled_arm]*reward-self.clicks*self.cost)
 		self.pulled_arms_counts[pulled_arm] += 1
 		self.t += 1
 
@@ -60,7 +66,7 @@ class UCB1_Learner(Learner):
 
 class GPLearner(Learner):
 	def __init__(self,n_arms,arms):
-		super().__init__(n_arms)
+		super().__init__(n_arms,arms)
 		self.arms=arms
 		self.means=np.zeros(self.n_arms)
 		self.sigmas=np.ones(self.n_arms)*5

@@ -21,7 +21,7 @@ bids = np.linspace(min_bid,max_bid,n_arms)
 sigma = 10
 best_price = getOptimal()[0][0]
 
-T = 60 # horizon ricordarsi di cambiare prima del run finale perchè deve essere 365
+T = 365 # horizon ricordarsi di cambiare prima del run finale perchè deve essere 365
 n_experiment = 5
 
 customers = []

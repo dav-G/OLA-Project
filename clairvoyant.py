@@ -51,6 +51,7 @@ def getOptimal(f_print = False):
 			print('CUSTOMER {}'.format(C.name))
 			print('   Best price: {}'.format(best_price))
 			print('   Best bid: {}'.format(best_bid))
+			print('Total reward: {}'.format(sum(rewards)))
 		
 	if f_print:
 		print('Total reward: {}'.format(sum(rewards)))
