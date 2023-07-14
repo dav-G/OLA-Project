@@ -16,7 +16,7 @@ c1 = UserClass(
         [0.98, 0.88, 0.43, 0.25, 0.22],
         [0.86, 0.76, 0.20, 0.32, 0.08],
         [0.65, 0.68, 0.12, 0.16, 0.12],
-        [0.44, 0.53, 0.28, 0.11, 0.01]
+        [0.54, 0.42, 0.28, 0.11, 0.01]
     ])
 )
 prb = (c1.prices - 8) * c1.probabilities
@@ -26,8 +26,8 @@ T = 365
 
 n_phases = 5
 
-n_phases_long = 100
-prb_long = np.tile(prb, reps=(20, 1))
+n_phases_long = 75
+prb_long = np.tile(prb, reps=(15, 1))
 
 phases_len = int(T / n_phases)
 phases_len_long = int(T / n_phases_long)
@@ -37,7 +37,7 @@ M = 50
 eps = 0.15
 h = 2 * np.log(T)
 alpha = np.sqrt(0.5 * np.log(T) / T)
-gamma = 0.8
+# gamma = 0.8
 
 ucb1_rewards_per_experiment = []
 exp3_rewards_per_experiment = []
@@ -69,14 +69,14 @@ for e in range(0, n_experiments):
     cducb_long_env = Non_Stationary_Environment(prb_long, T, n_phases_long)
 
     ucb1_learner = UCB1_Learner(n_arms)
-    exp3_learner = EXP3_Learner(n_arms, gamma)
+    exp3_learner = EXP3_Learner(n_arms)
     swucb_learner_w1 = SWUCB_Learner(n_arms, int(0.5 * sqrt(T)))
     swucb_learner_w2 = SWUCB_Learner(n_arms, int(sqrt(T)))
     swucb_learner_w3 = SWUCB_Learner(n_arms, int(2 * sqrt(T)))
     cducb_learner = CDUCB_Learner(n_arms, M, eps, h, alpha)
 
     ucb1_learner_long = UCB1_Learner(n_arms)
-    exp3_learner_long = EXP3_Learner(n_arms, gamma)
+    exp3_learner_long = EXP3_Learner(n_arms)
     swucb_learner_w1_long = SWUCB_Learner(n_arms, int(0.5 * sqrt(T)))
     swucb_learner_w2_long = SWUCB_Learner(n_arms, int(sqrt(T)))
     swucb_learner_w3_long = SWUCB_Learner(n_arms, int(2 * sqrt(T)))
