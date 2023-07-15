@@ -10,9 +10,9 @@ class Non_Stationary_Environment(PricingEnvironment):
         self.n_phases = n_phases
         self.phases_size = horizon / self.n_phases
 
-    def round(self, pulled_arm):       
+    def round(self, pulled_arm, clicks):    
         current_phase = min(floor(self.t / self.phases_size), self.n_phases-1)
         p = self.probabilities[current_phase][pulled_arm]
-        reward = np.random.binomial(1, p)
+        reward = np.random.binomial(clicks, p)
         self.t += 1        
         return reward

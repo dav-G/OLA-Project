@@ -51,3 +51,4 @@ class EXP3_Learner(Learner):
         self.weights /= np.sum(self.weights)
         self.t += 1
         super().update_observations(pulled_arm, reward)
+"""

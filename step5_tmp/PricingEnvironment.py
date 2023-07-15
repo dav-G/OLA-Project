@@ -5,6 +5,6 @@ class PricingEnvironment():
         self.n_prices = n_prices
         self.probabilities = probabilities
 
-    def round(self, pulled_arm):
-        reward = np.random.binomial(1, self.probabilities[pulled_arm])
+    def round(self, pulled_arm, clicks):
+        reward = np.random.binomial(clicks, self.probabilities[pulled_arm])
         return reward
