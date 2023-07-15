@@ -3,8 +3,8 @@ import numpy as np
 from math import log
 
 class SWUCB_Learner(UCB1_Learner):
-    def __init__(self, n_arms, window_size):
-        super().__init__(n_arms)
+    def __init__(self, n_arms, window_size, margin, clicks, cost):
+        super().__init__(n_arms, margin, clicks, cost)
         self.window_size = window_size
         self.last_rewards = np.zeros(window_size)
         self.last_choices = np.full(window_size, -1)
@@ -28,6 +28,7 @@ class SWUCB_Learner(UCB1_Learner):
         now = self.t % self.window_size
         self.last_choices[now] = pulled_arm
         self.arms[pulled_arm] += 1
+        reward = self.margin[pulled_arm] * reward - self.clicks * self.cost
         self.last_rewards[now] = reward
         self.t += 1
         super().update_observations(pulled_arm, reward)

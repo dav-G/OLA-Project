@@ -4,8 +4,8 @@ from CUSUM import *
 
 
 class CDUCB_Learner(UCB1_Learner):
-    def __init__(self, n_arms, M, eps, h, alpha):
-        super().__init__(n_arms)
+    def __init__(self, n_arms, M, eps, h, alpha, margin, clicks, cost):
+        super().__init__(n_arms, margin, clicks, cost)
         self.change_detection = [CUSUM(M, eps, h) for _ in range(n_arms)]
         self.valid_rewards_per_arm = [[] for _ in range(n_arms)]
         self.detections = [[] for _ in range(n_arms)]
@@ -21,6 +21,7 @@ class CDUCB_Learner(UCB1_Learner):
             
     
     def update(self,pulled_arm,reward):
+        reward = self.margin[pulled_arm] * reward - self.clicks*self.cost
         self.t += 1
         if self.change_detection[pulled_arm].update(reward):
             self.detections[pulled_arm].append(self.t)
