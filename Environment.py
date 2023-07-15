@@ -50,12 +50,12 @@ class Environment():
 	def round(self, pulled_price, pulled_bid):
 		i = int(np.random.rand() * len(self.customers))
 		
-		clicks = np.random.normal(self.customers[i].num_clicks(self.bids[pulled_bid]), self.sigmas[pulled_bid])
-		click_cost = np.random.normal(self.customers[i].click_cost(self.bids[pulled_bid]), self.sigmas[pulled_bid])
+		clicks = max(0,np.random.normal(self.customers[i].num_clicks(self.bids[pulled_bid]), self.sigmas[pulled_bid]))
+		click_cost = np.random.normal(self.customers[i].click_cost(self.bids[pulled_bid]), self.sigmas[pulled_bid]/10)
 		
-		sold = (pulled_price - self.item_cost) * np.random.binomial(clicks, self.customers[i].conversion_probability(self.prices[pulled_price]))
+		sold = np.random.binomial(clicks, self.customers[i].conversion_probability(self.prices[pulled_price]))
 		
-		return (sold - clicks * click_cost,
+		return (sold,clicks,click_cost,
 				self.customers[i].features)
 				
 				
