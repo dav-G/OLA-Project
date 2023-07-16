@@ -13,7 +13,7 @@ from Learners import GPUCB_Learner, GPTS_Learner,TS_Learner3,UCB1_Learner3
 from plotResults import plot
 from clairvoyant import getOptimal
 # %%
-n_arms_ad=10 #da cambiare bisogna mettere 100 utilizzare uno minure solo per vedere le convergenze
+n_arms_ad=100 #da cambiare bisogna mettere 100 utilizzare uno minure solo per vedere le convergenze
 n_arms_pr=5
 
 min_bid=0.0
@@ -22,8 +22,8 @@ bids=np.linspace(min_bid,max_bid,n_arms_ad)
 prices=np.linspace(10,50,n_arms_pr)
 sigma=10
 margin=(prices-8)
-T=60 #horizon ricordarsi di cambiare prima del run finale perchè deve essere 365
-n_experiment=3
+T=365 #horizon ricordarsi di cambiare prima del run finale perchè deve essere 365
+n_experiment=10
 
 
 customers = []

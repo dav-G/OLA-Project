@@ -52,7 +52,7 @@ class UCB1_Learner(Learner):
 
 		for arm in range(self.n_arms):
 			average_reward = np.mean(self.rewards_per_arm[arm])
-			exploration_term = math.sqrt(2 * math.log(self.t) / self.pulled_arms_counts[arm])
+			exploration_term = math.sqrt(2 * math.log(self.t) / self.pulled_arms_counts[arm]*(self.t-1))
 			self.ucb_values[arm] = average_reward + exploration_term
 
 		return np.argmax(self.ucb_values)
