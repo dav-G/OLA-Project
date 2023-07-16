@@ -26,7 +26,7 @@ class SWUCB_Learner(UCB1_Learner):
 
     def update(self, pulled_arm, reward):
         reward = self.margin[pulled_arm] * reward - self.clicks * self.cost
-        normalized_reward = reward / np.max(self.margin[pulled_arm] * self.clicks - self.clicks * self.cost)
+        normalized_reward = reward / (self.margin[pulled_arm] * self.clicks - self.clicks * self.cost)
         now = self.t % self.window_size
         self.last_choices[now] = pulled_arm
         self.arms[pulled_arm] = np.count_nonzero(self.last_choices == pulled_arm)
