@@ -223,7 +223,6 @@ plt.legend(loc=0)
 plt.show()
 # %%
 # Instantaneous regret
-
 plt.figure("Instantaneous regret")
 plt.title("Instantaneous regret")
 plt.xlabel('t')
