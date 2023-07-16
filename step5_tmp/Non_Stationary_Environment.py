@@ -1,10 +1,9 @@
-from PricingEnvironment import *
 import numpy as np
 from math import floor
 
-class Non_Stationary_Environment(PricingEnvironment):
+class Non_Stationary_Environment():
     def __init__(self, probabilities, horizon, n_phases):
-        super().__init__(probabilities)
+        self.probabilities = probabilities
         self.t = 0
         self.horizon = horizon
         self.n_phases = n_phases
