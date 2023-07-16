@@ -9,7 +9,7 @@ from matplotlib import pyplot as plt
 import numpy as np
 from math import sqrt
 
-n_arms = 5
+
 
 customers = []
 
@@ -20,9 +20,9 @@ customers.append(Customer('C3', -5, 0.3, 65,[0.7,0.6,0.41,0.22,0.1]))
 c1 = UserClass(
     np.array([10, 20, 30, 40, 50]),
     np.array([
-        [0.95,0.70,0.53,0.28,0.14],
-        [0.05, 0.14, 0.96, 0.08, 0.01],
-        [0.75, 0.64, 0.26, 0.82, 0.12]
+        [0.95, 0.70, 0.53, 0.28, 0.14],
+        [0.80, 0.65, 0.43, 0.15, 0.05],
+        [0.75, 0.64, 0.26, 0.12, 0.02]
     ])
 )
 
@@ -34,10 +34,12 @@ cost = customers[0].cum_cost_clicks(2)
 margin = c1.prices - 8
 rewards = (margin * c1.probabilities - cost) * clicks
 
+n_arms = len(c1.prices)
+
 T = 365
 n_phases = 3
 phases_len = int(T / n_phases)
-n_experiments = 100
+n_experiments = 30
 M = 50
 eps = 0.15
 h = 2 * np.log(T)
@@ -56,11 +58,11 @@ for e in range(0, n_experiments):
     swucb_w3_env = Non_Stationary_Environment(c1.probabilities, T, n_phases)
     cducb_env = Non_Stationary_Environment(c1.probabilities, T, n_phases)
 
-    ucb1_learner = UCB1_Learner(n_arms, margin, clicks, cost)
-    swucb_learner_w1 = SWUCB_Learner(n_arms, int(0.5 * T), margin, clicks, cost)
-    swucb_learner_w2 = SWUCB_Learner(n_arms, int(sqrt(T)), margin, clicks, cost)
-    swucb_learner_w3 = SWUCB_Learner(n_arms, int(log(T)), margin, clicks, cost)
-    cducb_learner = CDUCB_Learner(n_arms, M, eps, h, alpha, margin, clicks, cost)
+    ucb1_learner = UCB1_Learner(n_arms, c1.prices, margin, clicks, cost)
+    swucb_learner_w1 = SWUCB_Learner(n_arms, c1.prices, int(0.5 * sqrt(T)), margin, clicks, cost)
+    swucb_learner_w2 = SWUCB_Learner(n_arms, c1.prices, int(sqrt(T)), margin, clicks, cost)
+    swucb_learner_w3 = SWUCB_Learner(n_arms, c1.prices, int(2 * sqrt(T)), margin, clicks, cost)
+    cducb_learner = CDUCB_Learner(n_arms, c1.prices, M, eps, h, alpha, margin, clicks, cost)
 
     for t in range(0, T):
         # UCB1
@@ -78,7 +80,7 @@ for e in range(0, n_experiments):
         reward = swucb_w2_env.round(pulled_arm, clicks)
         swucb_learner_w2.update(pulled_arm, reward)
 
-        # SWUCB1 window size = log(T)
+        # SWUCB1 window size = 2 * sqrt(T)
         pulled_arm = swucb_learner_w3.pull_arm()
         reward = swucb_w3_env.round(pulled_arm, clicks)
         swucb_learner_w3.update(pulled_arm, reward)
@@ -106,11 +108,11 @@ swucb_w2_regret = np.zeros(T)
 swucb_w3_regret = np.zeros(T)
 cducb_regret = np.zeros(T)
 
-ucb1_instantaneous_regret = np.zeros(T)
-swucb_w1_instantaneous_regret = np.zeros(T)
-swucb_w2_instantaneous_regret = np.zeros(T)
-swucb_w3_instantaneous_regret = np.zeros(T)
-cducb_instantaneous_regret = np.zeros(T)
+ucb1_std= np.zeros(T)
+swucb_w1_std = np.zeros(T)
+swucb_w2_std = np.zeros(T)
+swucb_w3_std = np.zeros(T)
+cducb_std = np.zeros(T)
 
 opt_per_phase = rewards.max(axis=1)
 optimum_per_round = np.zeros(T)
@@ -126,17 +128,17 @@ for i in range(n_phases):
     swucb_w3_regret[t_index] = np.mean(opt_per_phase[i] - swucb_w3_rewards_per_experiment, axis=0)[t_index]
     cducb_regret[t_index] = np.mean(opt_per_phase[i] - cducb_rewards_per_experiment, axis=0)[t_index]
 
-    # Instantaneous regret
-    ucb1_instantaneous_regret[t_index] = opt_per_phase[i] - np.mean(ucb1_rewards_per_experiment, axis=0)[t_index]
-    swucb_w1_instantaneous_regret[t_index] = opt_per_phase[i] - np.mean(swucb_w1_rewards_per_experiment, axis=0)[t_index]
-    swucb_w2_instantaneous_regret[t_index] = opt_per_phase[i] - np.mean(swucb_w2_rewards_per_experiment, axis=0)[t_index]
-    swucb_w3_instantaneous_regret[t_index] = opt_per_phase[i] - np.mean(swucb_w3_rewards_per_experiment, axis=0)[t_index]
-    cducb_instantaneous_regret[t_index] = opt_per_phase[i] - np.mean(cducb_rewards_per_experiment, axis=0)[t_index]
+    # Standard deviation instantaneous regret
+    ucb1_std[t_index] = np.std(opt_per_phase[i] - ucb1_rewards_per_experiment, axis=0)[t_index]
+    swucb_w1_std[t_index] = np.std(opt_per_phase[i] - swucb_w1_rewards_per_experiment, axis=0)[t_index]
+    swucb_w2_std[t_index] = np.std(opt_per_phase[i] - swucb_w2_rewards_per_experiment, axis=0)[t_index]
+    swucb_w3_std[t_index] = np.std(opt_per_phase[i] - swucb_w3_rewards_per_experiment, axis=0)[t_index]
+    cducb_std[t_index] = np.std(opt_per_phase[i] - cducb_rewards_per_experiment, axis=0)[t_index]
 
 ucb1_label = "Stationary UCB1"
 swucb_w1_label = r"$SW\ UCB1,\ window\ size=\frac{1}{2}\ T$"
 swucb_w2_label = r"$SW\ UCB1,\ window\ size=\sqrt{T}$"
-swucb_w3_label = r"$SW\ UCB1,\ window\ size=\log{T}$"
+swucb_w3_label = r"$SW\ UCB1,\ window\ size=2\ \sqrt{T}$"
 cducb_label = "CUSUM UCB1"
 
 x = list(range(0,T))
@@ -157,23 +159,23 @@ plt.plot(np.cumsum(swucb_w2_regret), 'g', label=swucb_w2_label)
 plt.plot(np.cumsum(swucb_w3_regret), 'gold', label=swucb_w3_label)
 plt.plot(np.cumsum(cducb_regret), 'm', label=cducb_label)
 
-plt.fill_between(x, ucb1_regret+stducb, ucb1_regret-stducb,
+plt.fill_between(x, np.cumsum(ucb1_regret)+stducb, np.cumsum(ucb1_regret)-stducb,
     alpha=0.5, facecolor='#DA8E8B',
     linewidth=0)
 
-plt.fill_between(x, swucb_w1_regret+stdswucb_w1, swucb_w1_regret-stdswucb_w1,
+plt.fill_between(x, np.cumsum(swucb_w1_regret)+stdswucb_w1, np.cumsum(swucb_w1_regret)-stdswucb_w1,
     alpha=0.5, facecolor='#8DAFD3',
     linewidth=0)
 
-plt.fill_between(x, swucb_w2_regret+stdswucb_w2, swucb_w2_regret-stdswucb_w2,
+plt.fill_between(x, np.cumsum(swucb_w2_regret)+stdswucb_w2, np.cumsum(swucb_w2_regret)-stdswucb_w2,
     alpha=0.5, facecolor='#A1ECA7',
     linewidth=0)
 
-plt.fill_between(x, swucb_w3_regret+stdswucb_w3, swucb_w3_regret-stdswucb_w3,
+plt.fill_between(x, np.cumsum(swucb_w3_regret)+stdswucb_w3, np.cumsum(swucb_w3_regret)-stdswucb_w3,
     alpha=0.5, facecolor='#FEF580',
     linewidth=0)
 
-plt.fill_between(x, cducb_regret+stdcducb, cducb_regret-stdcducb,
+plt.fill_between(x, np.cumsum(cducb_regret)+stdcducb, np.cumsum(cducb_regret)-stdcducb,
     alpha=0.5, facecolor='#CDA4DE',
     linewidth=0)
 
@@ -221,39 +223,33 @@ plt.legend(loc=0)
 plt.show()
 # %%
 # Instantaneous regret
-ucb1_instantaneous_regret = np.cumsum(ucb1_instantaneous_regret)
-swucb_w1_instantaneous_regret = np.cumsum(swucb_w1_instantaneous_regret)
-swucb_w2_instantaneous_regret = np.cumsum(swucb_w2_instantaneous_regret)
-swucb_w3_instantaneous_regret = np.cumsum(swucb_w3_instantaneous_regret)
-cducb_instantaneous_regret = np.cumsum(cducb_instantaneous_regret)
-
 plt.figure("Instantaneous regret")
 plt.title("Instantaneous regret")
 plt.xlabel('t')
 plt.ylabel('Regret')
-plt.plot(ucb1_instantaneous_regret, 'r', label=ucb1_label)
-plt.plot(swucb_w1_instantaneous_regret, 'b', label=swucb_w1_label)
-plt.plot(swucb_w2_instantaneous_regret, 'g', label=swucb_w2_label)
-plt.plot(swucb_w3_instantaneous_regret, 'gold', label=swucb_w3_label)
-plt.plot(cducb_instantaneous_regret, 'm', label=cducb_label)
+plt.plot(ucb1_regret, 'r', label=ucb1_label)
+plt.plot(swucb_w1_regret, 'b', label=swucb_w1_label)
+plt.plot(swucb_w2_regret, 'g', label=swucb_w2_label)
+plt.plot(swucb_w3_regret, 'gold', label=swucb_w3_label)
+plt.plot(cducb_regret, 'm', label=cducb_label)
 
-plt.fill_between(x, ucb1_instantaneous_regret+stducb, ucb1_instantaneous_regret-stducb,
+plt.fill_between(x, ucb1_regret+ucb1_std, ucb1_regret-ucb1_std,
     alpha=0.5, facecolor='#DA8E8B',
     linewidth=0)
 
-plt.fill_between(x, swucb_w1_instantaneous_regret+stdswucb_w1, swucb_w1_instantaneous_regret-stdswucb_w1,
+plt.fill_between(x, swucb_w1_regret+swucb_w1_std, swucb_w1_regret-swucb_w1_std,
     alpha=0.5, facecolor='#8DAFD3',
     linewidth=0)
 
-plt.fill_between(x, swucb_w2_instantaneous_regret+stdswucb_w2, swucb_w2_instantaneous_regret-stdswucb_w2,
+plt.fill_between(x, swucb_w2_regret+swucb_w2_std, swucb_w2_regret-swucb_w2_std,
     alpha=0.5, facecolor='#A1ECA7',
     linewidth=0)
 
-plt.fill_between(x, swucb_w3_instantaneous_regret+stdswucb_w3, swucb_w3_instantaneous_regret-stdswucb_w3,
+plt.fill_between(x, swucb_w3_regret+swucb_w3_std, swucb_w3_regret-swucb_w3_std,
     alpha=0.5, facecolor='#FEF580',
     linewidth=0)
 
-plt.fill_between(x, cducb_instantaneous_regret+stdcducb, cducb_instantaneous_regret-stdcducb,
+plt.fill_between(x, cducb_regret+cducb_std, cducb_regret-cducb_std,
     alpha=0.5, facecolor='#CDA4DE',
     linewidth=0)
 

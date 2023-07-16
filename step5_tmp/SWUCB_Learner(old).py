@@ -9,6 +9,8 @@ class SWUCB_Learner(UCB1_Learner):
     
     def pull_arm(self):
         upper_conf = self.empirical_means + self.confidence
+        return np.random.choice(np.where(upper_conf==upper_conf.max())[0])
+
         tmp = np.where(upper_conf==upper_conf.max())[0]
         if tmp.size > 0:
             return np.random.choice(tmp, size=int(len(tmp)>0)).item() 
