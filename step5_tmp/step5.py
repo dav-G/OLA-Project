@@ -38,9 +38,10 @@ rewards = (margin * c1.probabilities - cost) * clicks
 n_arms = len(c1.prices)
 
 T = 365
+n_experiments = 10
 n_phases = 3
 phases_len = int(T / n_phases)
-n_experiments = 10
+
 
 """
 SENSITIVITY ANALYSIS CUSUM
