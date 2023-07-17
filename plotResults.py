@@ -61,10 +61,7 @@ def plot(optimal, T, datasets, labels):
 		plt.fill_between(x,mean+std, mean-std,alpha=0.5)
 	plt.legend(plots, labels)
 	plt.show()
-	
 
-	
-	
 
 
 

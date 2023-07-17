@@ -2,6 +2,7 @@ import numpy as np
 import math
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import RBF, ConstantKernel as C
+from matplotlib import pyplot as plt
 
 class Learner:
 	def __init__(self, n_arms, arms):
@@ -122,7 +123,27 @@ class GPLearner(Learner):
 	def update(self,pulled_arm,reward):
 		self.t+=1
 		self.update_observations(pulled_arm,reward)
-		self.update_model()		
+		self.update_model()	
+
+
+	def plot(self, unknown_function, sigma_scale_factor=20, path=None):
+
+		x_pred = np.atleast_2d(self.arms).T
+		y_pred, sigma = self.gp.predict(x_pred, return_std=True)
+
+		plt.figure(0)
+		plt.title(f'Predicted clicks over budget')
+		plt.plot(x_pred, unknown_function, ':', label=r'True n(x) function')
+		plt.scatter(self.pulled_arms, self.collected_rewards, marker='o', label=r'Observed Clicks')
+		plt.plot(x_pred, y_pred, '-', label=r'Predicted Clicks')
+		plt.fill(np.concatenate([x_pred, x_pred[::-1]]),
+                 np.concatenate([y_pred - 1.96 * sigma * sigma_scale_factor,
+                                 (y_pred + 1.96 * sigma * sigma_scale_factor)[::-1]]),
+                 alpha=.2, fc='C2', ec='None', label='95% conf interval')
+		plt.xlabel('% Of Allocated Budget')
+		plt.ylabel('$n(x)$')
+		plt.legend(loc='lower right')
+		plt.show()	
 
 class GPTS_Learner(GPLearner):
 	def pull_arm(self):
