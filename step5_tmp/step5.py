@@ -22,8 +22,8 @@ c1 = UserClass(
     np.array([10, 20, 30, 40, 50]),
     np.array([
         [0.95, 0.70, 0.53, 0.28, 0.14],
-        [0.80, 0.65, 0.43, 0.15, 0.05],
-        [0.75, 0.64, 0.26, 0.12, 0.02]
+        [0.05, 0.25, 0.83, 0.95, 0.45],
+        [0.75, 0.64, 0.06, 0.62, 0.82]
     ])
 )
 
@@ -38,7 +38,7 @@ rewards = (margin * c1.probabilities - cost) * clicks
 n_arms = len(c1.prices)
 
 T = 365
-n_experiments = 10
+n_experiments = 50
 n_phases = 3
 phases_len = int(T / n_phases)
 
