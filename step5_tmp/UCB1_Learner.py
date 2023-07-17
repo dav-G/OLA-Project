@@ -15,8 +15,9 @@ class UCB1_Learner(Learner):
 
     def update(self, pulled_arm, reward):
         reward = self.margin[pulled_arm] * reward - self.clicks * self.cost
+        normalized_reward = reward / (self.margin[pulled_arm] * self.clicks - self.clicks * self.cost)
         self.t+=1
-        self.empirical_means[pulled_arm]= (self.empirical_means[pulled_arm]*(self.t-1) + reward)/self.t
+        self.empirical_means[pulled_arm]= (self.empirical_means[pulled_arm]*(self.t-1) + normalized_reward)/self.t
         for a in range(self.n_arms):
             n_samples= len(self.rewards_per_arm[a])
             self.confidence[a]= np.sqrt(2*np.log(self.t)/n_samples) if n_samples>0 else np.inf
