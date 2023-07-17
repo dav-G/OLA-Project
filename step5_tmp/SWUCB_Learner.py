@@ -12,9 +12,10 @@ class SWUCB_Learner(UCB1_Learner):
     
     def pull_arm(self):
         if np.any(self.arms == 0):
-            return np.where(self.arms == 0)[0][0]
-        
+            return np.where(self.arms == 0)[0][0]        
         for arm in range(self.n_arms):
+            if not(arm in self.last_choices):
+                 return arm
             self.empirical_means[arm] = np.sum(
                 self.last_rewards[self.last_choices == arm]
             ) / self.arms[arm]
@@ -24,7 +25,7 @@ class SWUCB_Learner(UCB1_Learner):
         upper_conf = self.empirical_means + self.confidence
         return np.random.choice(np.where(upper_conf==upper_conf.max())[0])
 
-    def update(self, pulled_arm, reward):
+    def update(self, pulled_arm, reward):        
         reward = self.margin[pulled_arm] * reward - self.clicks * self.cost
         normalized_reward = reward / (self.margin[pulled_arm] * self.clicks - self.clicks * self.cost)
         now = self.t % self.window_size

@@ -3,8 +3,8 @@ import numpy as np
 from math import log
 
 class SWUCB_Learner(UCB1_Learner):
-    def __init__(self, n_arms, window_size):
-        super().__init__(n_arms)
+    def __init__(self, n_arms, arms, window_size, margin, clicks, cost):
+        super().__init__(n_arms, arms, margin, clicks, cost)
         self.window_size = window_size
         self.last_rewards = np.zeros(window_size)
         self.last_choices = np.full(window_size, -1)
@@ -12,9 +12,10 @@ class SWUCB_Learner(UCB1_Learner):
     
     def pull_arm(self):
         if np.any(self.arms == 0):
-            return np.where(self.arms == 0)[0][0]
-        
+            return np.where(self.arms == 0)[0][0]        
         for arm in range(self.n_arms):
+            if not(arm in self.last_choices):
+                 return arm
             self.empirical_means[arm] = np.sum(
                 self.last_rewards[self.last_choices == arm]
             ) / self.arms[arm]
@@ -24,10 +25,12 @@ class SWUCB_Learner(UCB1_Learner):
         upper_conf = self.empirical_means + self.confidence
         return np.random.choice(np.where(upper_conf==upper_conf.max())[0])
 
-    def update(self, pulled_arm, reward):
+    def update(self, pulled_arm, reward):        
+        reward = self.margin[pulled_arm] * reward - self.clicks * self.cost
+        normalized_reward = reward / (self.margin[pulled_arm] * self.clicks - self.clicks * self.cost)
         now = self.t % self.window_size
         self.last_choices[now] = pulled_arm
-        self.arms[pulled_arm] += 1
-        self.last_rewards[now] = reward
+        self.arms[pulled_arm] = np.count_nonzero(self.last_choices == pulled_arm)
+        self.last_rewards[now] = normalized_reward
         self.t += 1
         super().update_observations(pulled_arm, reward)

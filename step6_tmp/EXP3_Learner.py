@@ -1,11 +1,11 @@
 import numpy as np
-from Learner import *
+from UCB1_Learner import *
 
 """
-class EXP3_Learner(Learner):
-    def __init__(self, n_arms, gamma):
-        super().__init__(n_arms)
-        self.gamma = gamma
+class EXP3_Learner(UCB1_Learner):
+    def __init__(self, n_arms, arms, margin, clicks, cost):
+        super().__init__(n_arms, arms, margin, clicks, cost)
+        self.gamma = 0.8
         self.weights = np.ones(n_arms)
         self.estimated_rewards = np.zeros(n_arms)
         self.p = np.full(n_arms,1/n_arms)
@@ -15,7 +15,9 @@ class EXP3_Learner(Learner):
         return np.random.choice(np.where(self.p==self.p.max())[0])
 
     def update(self, pulled_arm, reward):
-        self.estimated_rewards[pulled_arm] = reward/self.p[pulled_arm]
+        reward = self.margin[pulled_arm] * reward - self.clicks * self.cost
+        normalized_reward = reward / (self.margin[pulled_arm] * self.clicks - self.clicks * self.cost)
+        self.estimated_rewards[pulled_arm] = normalized_reward/self.p[pulled_arm]
         self.weights[pulled_arm] = self.weights[pulled_arm]*np.exp(
             self.estimated_rewards[pulled_arm]*self.gamma/self.n_arms
         )
@@ -23,9 +25,9 @@ class EXP3_Learner(Learner):
         super().update_observations(pulled_arm, reward)     
 """
 
-class EXP3_Learner(Learner):
-    def __init__(self, n_arms):
-        super().__init__(n_arms)
+class EXP3_Learner(UCB1_Learner):
+    def __init__(self, n_arms, arms, margin, clicks, cost):
+        super().__init__(n_arms, arms, margin, clicks, cost)
         self.gamma = np.sqrt(np.log(n_arms) / n_arms)
         self.weights = np.full(n_arms, 1. / n_arms)
         self._initial_exploration = np.random.permutation(n_arms)
@@ -47,7 +49,9 @@ class EXP3_Learner(Learner):
 
     
     def update(self, pulled_arm, reward):
-        self.weights[pulled_arm] *= np.exp(reward * (self.gamma / self.n_arms))
+        reward = self.margin[pulled_arm] * reward - self.clicks * self.cost
+        normalized_reward = reward / (self.margin[pulled_arm] * self.clicks - self.clicks * self.cost)
+        self.weights[pulled_arm] *= np.exp(normalized_reward * (self.gamma / self.n_arms))
         self.weights /= np.sum(self.weights)
         self.t += 1
         super().update_observations(pulled_arm, reward)
