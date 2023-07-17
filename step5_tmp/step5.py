@@ -1,13 +1,14 @@
-# %%
+#%%
 from Customer import *
 from UserClass import *
 from UCB1_Learner import *
 from Non_Stationary_Environment import *
 from SWUCB_Learner import *
 from CDUCB_Learner import *
+from plotResults import Plotter
 from matplotlib import pyplot as plt
 import numpy as np
-from math import sqrt
+from math import sqrt, log
 
 
 
@@ -40,10 +41,26 @@ T = 365
 n_phases = 3
 phases_len = int(T / n_phases)
 n_experiments = 10
-M = 50
-eps = 0.15
+
+"""
+SENSITIVITY ANALYSIS CUSUM
+w_sizes = [int(0.5 * sqrt(T)), int(sqrt(T)), int(2 * sqrt(T)), int(4 * sqrt(T)), int(6 * sqrt(T))]
+eps_params = [0.1, 0.25, 0.5, 0.75, 1]
+h_params = [0.5 * log(T), log(T), 2 * log(T), 4 * log(T), 6 * log(T)]
+alpha_params = []
+"""
+
+# window_size
+M = 100
+
+# exploration term
+eps = 0.1
+
+# detection threshold
 h = 2 * np.log(T)
-alpha = np.sqrt(0.5 * np.log(T) / T)
+
+# scaling
+alpha = 0.01
 
 ucb1_rewards_per_experiment = []
 swucb_w1_rewards_per_experiment = []
@@ -108,11 +125,11 @@ swucb_w2_regret = np.zeros(T)
 swucb_w3_regret = np.zeros(T)
 cducb_regret = np.zeros(T)
 
-ucb1_std= np.zeros(T)
-swucb_w1_std = np.zeros(T)
-swucb_w2_std = np.zeros(T)
-swucb_w3_std = np.zeros(T)
-cducb_std = np.zeros(T)
+ucb1_std_regret = np.zeros(T)
+swucb_w1_std_regret = np.zeros(T)
+swucb_w2_std_regret = np.zeros(T)
+swucb_w3_std_regret = np.zeros(T)
+cducb_std_regret = np.zeros(T)
 
 opt_per_phase = rewards.max(axis=1)
 optimum_per_round = np.zeros(T)
@@ -129,143 +146,96 @@ for i in range(n_phases):
     cducb_regret[t_index] = np.mean(opt_per_phase[i] - cducb_rewards_per_experiment, axis=0)[t_index]
 
     # Standard deviation instantaneous regret
-    ucb1_std[t_index] = np.std(opt_per_phase[i] - ucb1_rewards_per_experiment, axis=0)[t_index]
-    swucb_w1_std[t_index] = np.std(opt_per_phase[i] - swucb_w1_rewards_per_experiment, axis=0)[t_index]
-    swucb_w2_std[t_index] = np.std(opt_per_phase[i] - swucb_w2_rewards_per_experiment, axis=0)[t_index]
-    swucb_w3_std[t_index] = np.std(opt_per_phase[i] - swucb_w3_rewards_per_experiment, axis=0)[t_index]
-    cducb_std[t_index] = np.std(opt_per_phase[i] - cducb_rewards_per_experiment, axis=0)[t_index]
+    ucb1_std_regret[t_index] = np.std(opt_per_phase[i] - ucb1_rewards_per_experiment, axis=0)[t_index]
+    swucb_w1_std_regret[t_index] = np.std(opt_per_phase[i] - swucb_w1_rewards_per_experiment, axis=0)[t_index]
+    swucb_w2_std_regret[t_index] = np.std(opt_per_phase[i] - swucb_w2_rewards_per_experiment, axis=0)[t_index]
+    swucb_w3_std_regret[t_index] = np.std(opt_per_phase[i] - swucb_w3_rewards_per_experiment, axis=0)[t_index]
+    cducb_std_regret[t_index] = np.std(opt_per_phase[i] - cducb_rewards_per_experiment, axis=0)[t_index]
+
+# Instantaneous reward
+ucb1_inst_reward = np.mean(ucb1_rewards_per_experiment, axis=0)
+swucb_w1_inst_reward = np.mean(swucb_w1_rewards_per_experiment, axis=0)
+swucb_w2_inst_reward = np.mean(swucb_w2_rewards_per_experiment, axis=0)
+swucb_w3_inst_reward = np.mean(swucb_w3_rewards_per_experiment, axis=0)
+cducb_inst_reward = np.mean(cducb_rewards_per_experiment, axis=0)
+
+# Cumulative regret
+ucb1_cum_regret = np.cumsum(ucb1_regret)
+swucb_w1_cum_regret = np.cumsum(swucb_w1_regret)
+swucb_w2_cum_regret = np.cumsum(swucb_w2_regret)
+swucb_w3_cum_regret = np.cumsum(swucb_w3_regret)
+cducb_cum_regret = np.cumsum(cducb_regret)
+
+# Cumulative reward
+ucb1_cum_reward = np.cumsum(np.mean(ucb1_rewards_per_experiment, axis=0))
+swucb_w1_cum_reward = np.cumsum(np.mean(swucb_w1_rewards_per_experiment, axis=0))
+swucb_w2_cum_reward = np.cumsum(np.mean(swucb_w2_rewards_per_experiment, axis=0))
+swucb_w3_cum_reward = np.cumsum(np.mean(swucb_w3_rewards_per_experiment, axis=0))
+cducb_cum_reward = np.cumsum(np.mean(cducb_rewards_per_experiment, axis=0))
+
+# Standard deviation cumulative regret
+ucb1_cumstd_regret = [(np.cumsum(ucb1_regret))[:i].std() for i in range(1, T + 1)]
+swucb_w1_cumstd_regret = [(np.cumsum(swucb_w1_regret))[:i].std() for i in range(1, T + 1)]
+swucb_w2_cumstd_regret = [(np.cumsum(swucb_w2_regret))[:i].std() for i in range(1, T + 1)]
+swucb_w3_cumstd_regret = [(np.cumsum(swucb_w3_regret))[:i].std() for i in range(1, T + 1)]
+cducb_cumstd_regret = [(np.cumsum(cducb_regret))[:i].std() for i in range(1, T + 1)]
+
+# Standard deviation instantaneous reward
+ucb1_std_reward = np.std(ucb1_rewards_per_experiment, axis=0)
+swucb_w1_std_reward = np.std(swucb_w1_rewards_per_experiment, axis=0)
+swucb_w2_std_reward = np.std(swucb_w2_rewards_per_experiment, axis=0)
+swucb_w3_std_reward = np.std(swucb_w3_rewards_per_experiment, axis=0)
+cducb_std_reward = np.std(cducb_rewards_per_experiment, axis=0)
+
+# Standard deviation cumulative reward
+ucb1_cumstd_reward = [(np.cumsum(ucb1_rewards_per_experiment))[:i].std() for i in range(1, T + 1)]
+swucb_w1_cumstd_reward = [(np.cumsum(swucb_w1_rewards_per_experiment))[:i].std() for i in range(1, T + 1)]
+swucb_w2_cumstd_reward = [(np.cumsum(swucb_w2_rewards_per_experiment))[:i].std() for i in range(1, T + 1)]
+swucb_w3_cumstd_reward = [(np.cumsum(swucb_w3_rewards_per_experiment))[:i].std() for i in range(1, T + 1)]
+cducb_cumstd_reward = [(np.cumsum(cducb_rewards_per_experiment))[:i].std() for i in range(1, T + 1)]
+
+#%%
+dataset = np.array([
+    [
+        [ucb1_regret, ucb1_std_regret],
+        [ucb1_inst_reward, ucb1_std_reward], 
+        [ucb1_cum_regret, ucb1_cumstd_regret], 
+        [ucb1_cum_reward, ucb1_cumstd_reward]
+    ],
+    [
+        [swucb_w1_regret, swucb_w1_std_regret],
+        [swucb_w1_inst_reward, swucb_w1_std_reward], 
+        [swucb_w1_cum_regret, swucb_w1_cumstd_regret], 
+        [swucb_w1_cum_reward, swucb_w1_cumstd_reward]
+    ],
+    [
+        [swucb_w2_regret, swucb_w2_std_regret],
+        [swucb_w2_inst_reward, swucb_w2_std_reward], 
+        [swucb_w2_cum_regret, swucb_w2_cumstd_regret], 
+        [swucb_w2_cum_reward, swucb_w2_cumstd_reward]
+    ],
+    [
+        [swucb_w3_regret, swucb_w3_std_regret],
+        [swucb_w3_inst_reward, swucb_w3_std_reward], 
+        [swucb_w3_cum_regret, swucb_w3_cumstd_regret], 
+        [swucb_w3_cum_reward, swucb_w3_cumstd_reward]
+    ],
+    [
+        [cducb_regret, cducb_std_regret],
+        [cducb_inst_reward, cducb_std_reward], 
+        [cducb_cum_regret, cducb_cumstd_regret], 
+        [cducb_cum_reward, cducb_cumstd_reward]
+    ]
+])
+
+titles = ["Instantaneous regret", "Instantaneous reward", "Cumulative regret", "Cumulative reward"]
 
 ucb1_label = "Stationary UCB1"
 swucb_w1_label = r"$SW\ UCB1,\ window\ size=\frac{1}{2}\ T$"
 swucb_w2_label = r"$SW\ UCB1,\ window\ size=\sqrt{T}$"
 swucb_w3_label = r"$SW\ UCB1,\ window\ size=2\ \sqrt{T}$"
 cducb_label = "CUSUM UCB1"
+labels = [ucb1_label, swucb_w1_label, swucb_w2_label, swucb_w3_label, cducb_label]
 
-x = list(range(0,T))
-stducb = [(np.cumsum(ucb1_regret))[:i].std() for i in range(1, T + 1)]
-stdswucb_w1 = [(np.cumsum(swucb_w1_regret))[:i].std() for i in range(1, T + 1)]
-stdswucb_w2 = [(np.cumsum(swucb_w2_regret))[:i].std() for i in range(1, T + 1)]
-stdswucb_w3 = [(np.cumsum(swucb_w3_regret))[:i].std() for i in range(1, T + 1)]
-stdcducb = [(np.cumsum(cducb_regret))[:i].std() for i in range(1, T + 1)]
-# %%
-# Cumulative regret
-plt.figure("Cumulative regret")
-plt.title("Cumulative regret")
-plt.xlabel('t')
-plt.ylabel('Regret')
-plt.plot(np.cumsum(ucb1_regret), 'r', label=ucb1_label)
-plt.plot(np.cumsum(swucb_w1_regret), 'b', label=swucb_w1_label)
-plt.plot(np.cumsum(swucb_w2_regret), 'g', label=swucb_w2_label)
-plt.plot(np.cumsum(swucb_w3_regret), 'gold', label=swucb_w3_label)
-plt.plot(np.cumsum(cducb_regret), 'm', label=cducb_label)
-
-plt.fill_between(x, np.cumsum(ucb1_regret)+stducb, np.cumsum(ucb1_regret)-stducb,
-    alpha=0.5, facecolor='#DA8E8B',
-    linewidth=0)
-
-plt.fill_between(x, np.cumsum(swucb_w1_regret)+stdswucb_w1, np.cumsum(swucb_w1_regret)-stdswucb_w1,
-    alpha=0.5, facecolor='#8DAFD3',
-    linewidth=0)
-
-plt.fill_between(x, np.cumsum(swucb_w2_regret)+stdswucb_w2, np.cumsum(swucb_w2_regret)-stdswucb_w2,
-    alpha=0.5, facecolor='#A1ECA7',
-    linewidth=0)
-
-plt.fill_between(x, np.cumsum(swucb_w3_regret)+stdswucb_w3, np.cumsum(swucb_w3_regret)-stdswucb_w3,
-    alpha=0.5, facecolor='#FEF580',
-    linewidth=0)
-
-plt.fill_between(x, np.cumsum(cducb_regret)+stdcducb, np.cumsum(cducb_regret)-stdcducb,
-    alpha=0.5, facecolor='#CDA4DE',
-    linewidth=0)
-
-plt.legend(loc=0)
-plt.show()
-# %%
-# Cumulative reward
-ucb1_cum_mean = np.cumsum(np.mean(ucb1_rewards_per_experiment, axis=0))
-swucb_w1_cum_mean = np.cumsum(np.mean(swucb_w1_rewards_per_experiment, axis=0))
-swucb_w2_cum_mean = np.cumsum(np.mean(swucb_w2_rewards_per_experiment, axis=0))
-swucb_w3_cum_mean = np.cumsum(np.mean(swucb_w3_rewards_per_experiment, axis=0))
-cducb_cum_mean = np.cumsum(np.mean(cducb_rewards_per_experiment, axis=0))
-
-plt.figure("Cumulative reward")
-plt.title("Cumulative reward")
-plt.xlabel('t')
-plt.ylabel('Reward')
-plt.plot(ucb1_cum_mean, 'r', label=ucb1_label)
-plt.plot(swucb_w1_cum_mean, 'b', label=swucb_w1_label)
-plt.plot(swucb_w2_cum_mean, 'g', label=swucb_w2_label)
-plt.plot(swucb_w3_cum_mean, 'gold', label=swucb_w3_label)
-plt.plot(cducb_cum_mean, 'm', label=cducb_label)
-
-plt.fill_between(x, ucb1_cum_mean+stducb, ucb1_cum_mean-stducb,
-    alpha=0.5, facecolor='#DA8E8B',
-    linewidth=0)
-
-plt.fill_between(x, swucb_w1_cum_mean+stdswucb_w1, swucb_w1_cum_mean-stdswucb_w1,
-    alpha=0.5, facecolor='#8DAFD3',
-    linewidth=0)
-
-plt.fill_between(x, swucb_w2_cum_mean+stdswucb_w2, swucb_w2_cum_mean-stdswucb_w2,
-    alpha=0.5, facecolor='#A1ECA7',
-    linewidth=0)
-
-plt.fill_between(x, swucb_w3_cum_mean+stdswucb_w3, swucb_w3_cum_mean-stdswucb_w3,
-    alpha=0.5, facecolor='#FEF580',
-    linewidth=0)
-
-plt.fill_between(x, cducb_cum_mean+stdcducb, cducb_cum_mean-stdcducb,
-    alpha=0.5, facecolor='#CDA4DE',
-    linewidth=0)
-
-plt.legend(loc=0)
-plt.show()
-# %%
-# Instantaneous regret
-plt.figure("Instantaneous regret")
-plt.title("Instantaneous regret")
-plt.xlabel('t')
-plt.ylabel('Regret')
-plt.plot(ucb1_regret, 'r', label=ucb1_label)
-plt.plot(swucb_w1_regret, 'b', label=swucb_w1_label)
-plt.plot(swucb_w2_regret, 'g', label=swucb_w2_label)
-plt.plot(swucb_w3_regret, 'gold', label=swucb_w3_label)
-plt.plot(cducb_regret, 'm', label=cducb_label)
-
-plt.fill_between(x, ucb1_regret+ucb1_std, ucb1_regret-ucb1_std,
-    alpha=0.5, facecolor='#DA8E8B',
-    linewidth=0)
-
-plt.fill_between(x, swucb_w1_regret+swucb_w1_std, swucb_w1_regret-swucb_w1_std,
-    alpha=0.5, facecolor='#8DAFD3',
-    linewidth=0)
-
-plt.fill_between(x, swucb_w2_regret+swucb_w2_std, swucb_w2_regret-swucb_w2_std,
-    alpha=0.5, facecolor='#A1ECA7',
-    linewidth=0)
-
-plt.fill_between(x, swucb_w3_regret+swucb_w3_std, swucb_w3_regret-swucb_w3_std,
-    alpha=0.5, facecolor='#FEF580',
-    linewidth=0)
-
-plt.fill_between(x, cducb_regret+cducb_std, cducb_regret-cducb_std,
-    alpha=0.5, facecolor='#CDA4DE',
-    linewidth=0)
-
-plt.legend(loc=0)
-plt.show()
-# %%
-# Instantaneous reward
-plt.figure("Instantaneous reward")
-plt.title("Instantaneous reward")
-plt.xlabel('t')
-plt.ylabel('Reward')
-plt.plot(np.mean(ucb1_rewards_per_experiment, axis=0), 'r', label=ucb1_label)
-plt.plot(np.mean(swucb_w1_rewards_per_experiment, axis=0), 'b', label=swucb_w1_label)
-plt.plot(np.mean(swucb_w2_rewards_per_experiment, axis=0), 'g', label=swucb_w2_label)
-plt.plot(np.mean(swucb_w3_rewards_per_experiment, axis=0), 'gold', label=swucb_w3_label)
-plt.plot(np.mean(cducb_rewards_per_experiment, axis=0), 'm', label=cducb_label)
-plt.plot(optimum_per_round, 'k--', label="Optimum")
-plt.legend(loc=0)
-plt.show()
+plotter = Plotter(dataset, optimum_per_round, titles, labels, T)
+plotter.plots()
