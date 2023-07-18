@@ -1,7 +1,5 @@
 from Customer import *
-from UserClass import *
 from UCB1_Learner import *
-from UserClass import *
 from EXP3_Learner import *
 from Non_Stationary_Environment import *
 from SWUCB_Learner import *
