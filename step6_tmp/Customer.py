@@ -1,22 +1,26 @@
 import numpy as np
 
 class Customer:
-    def __init__(self, name, clicks_a, clicks_b, clicks_c, prob):
-        self.name = name
-        self.clicks_a = clicks_a
-        self.clicks_b = clicks_b
-        self.clicks_c = clicks_c
-        self.prob = prob
-    
-    def num_clicks(self, bid):
-        return (1.0 - np.exp(self.clicks_a * bid + self.clicks_b * bid**2)) * self.clicks_c
-    
-    def cum_cost_clicks(self, bid):
-        C=self.clicks_c/50
-        return 1.5*C*np.log10(1+bid/C)
-    
-    def compute_pricing(self,prices):
-        ret=[]
-        for i in range(0,5):
-            ret.append((prices[i]-8.0)*self.prob[i])
-        return ret
+
+	def __init__(self, name, pricing_a, pricing_b, pricing_c, pricing_d, bidding_a, bidding_b, bidding_c, features = {}):
+		self.name = name
+		self.features = features
+
+		self.pricing_a = pricing_a
+		self.pricing_b = pricing_b
+		self.pricing_c = pricing_c
+		self.pricing_d = pricing_d
+
+		self.bidding_a = bidding_a
+		self.bidding_b = bidding_b
+		self.bidding_c = bidding_c
+
+	def num_clicks(self, bid):
+		return (1.0 - np.exp(self.bidding_a * bid + self.bidding_b * bid**2)) * self.bidding_c
+
+	def click_cost(self, bid):
+		C = self.bidding_c/50
+		return 1.5 * C * np.log10(1 + bid/C)
+
+	def conversion_probability(self, price):
+		return self.pricing_a + self.pricing_b/(1 + pow(price/self.pricing_c, self.pricing_d))

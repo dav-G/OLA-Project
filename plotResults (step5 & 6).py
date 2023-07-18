@@ -34,7 +34,7 @@ class Plotter():
 					self.x,
 					self.dataset[curve][graph][0] + self.dataset[curve][graph][1],
 					self.dataset[curve][graph][0] - self.dataset[curve][graph][1],
-					alpha=0.3
+					alpha=0.25
 				)
 			if (self.titles[graph].split()[0].lower() == "instantaneous"):
 				if (self.titles[graph].split()[-1].lower() == "regret"):
@@ -72,7 +72,7 @@ class Plotter():
 					self.x,
 					self.dataset[0][curve][graph][0] + self.dataset[0][curve][graph][1],
 					self.dataset[0][curve][graph][0] - self.dataset[0][curve][graph][1],
-					alpha=0.3
+					alpha=0.25
 				)
 			if (self.titles[graph].split()[0].lower() == "instantaneous"):
 				if (self.titles[graph].split()[-1].lower() == "regret"):
@@ -106,7 +106,7 @@ class Plotter():
 					self.x,
 					self.dataset[1][curve][graph][0] + self.dataset[1][curve][graph][1],
 					self.dataset[1][curve][graph][0] - self.dataset[1][curve][graph][1],
-					alpha=0.3
+					alpha=0.25
 				)
 			if (self.titles[graph].split()[0].lower() == "instantaneous"):
 				if (self.titles[graph].split()[-1].lower() == "regret"):
@@ -125,4 +125,4 @@ class Plotter():
 					)
 			axes[1].legend(loc=0)
 			
-			plt.show()		
+			plt.show()
