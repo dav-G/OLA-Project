@@ -8,16 +8,15 @@ from plotResults import Plotter
 from matplotlib import pyplot as plt
 import numpy as np
 from math import sqrt
+import json
 
 c1 = Customer('C1', -0.0081, 0.97, 32, 3.8, -1.5, 0.1, 100)
 prices = np.array([10, 20, 30, 40, 50])
-prb = np.array([
-    [0.95, 0.70, 0.53, 0.28, 0.14],
-    [0.05, 0.25, 0.83, 0.95, 0.45],
-    [0.75, 0.64, 0.06, 0.62, 0.82],
-    [0.25, 0.18, 0.12, 0.96, 0.32],
-    [0.84, 0.92, 0.28, 0.11, 0.01]
-])
+
+# Get probabilities from a file .json
+with open('probabilities.json', 'r') as file:
+    probabilities = json.load(file)
+prb = np.array(probabilities['prb_step6'][0])
 
 T = 365
 n_experiments = 50
@@ -35,9 +34,9 @@ n_phases = 5
 phases_len = int(T / n_phases)
 
 # long: refers to setting with higher non-stationarity degree (more phases)
-n_phases_long = 75
+n_phases_long = 25
 phases_len_long = int(T / n_phases_long)
-prb_long = np.tile(prb, reps=(15, 1))
+prb_long = np.tile(prb, reps=(5, 1))
 rewards_long = (margin * prb_long - cost) * clicks
 
 opt_per_phase = rewards.max(axis=1)
@@ -47,13 +46,13 @@ optimum_per_round = np.zeros(T)
 optimum_per_round_long = np.zeros(T)
 
 # window_size
-M = 100
+M = 10
 # exploration term
-eps = 0.1
+eps = 0.15
 # detection threshold
-h = 2 * np.log(T)
+h = 3 * np.log(T)
 # scaling
-alpha = 0.01
+alpha = 0.1
 
 rewards_experiment = [[] for i in range(n_alg)]
 rewards_experiment_long = [[] for i in range(n_alg)]
@@ -65,13 +64,13 @@ for e in range(0, n_experiments):
     learner = [
         UCB1_Learner(n_arms, prices, margin, clicks, cost),
         EXP3_Learner(n_arms, prices, margin, clicks, cost),
-        SWUCB_Learner(n_arms, prices, int(0.5 * sqrt(T)), margin, clicks, cost),
+        SWUCB_Learner(n_arms, prices, int(7/2 * sqrt(T)), margin, clicks, cost),
         CDUCB_Learner(n_arms, prices, M, eps, h, alpha, margin, clicks, cost)
     ]
     learner_long = [
         UCB1_Learner(n_arms, prices, margin, clicks, cost),
         EXP3_Learner(n_arms, prices, margin, clicks, cost),
-        SWUCB_Learner(n_arms, prices, int(0.5 * sqrt(T)), margin, clicks, cost),
+        SWUCB_Learner(n_arms, prices, int(7/2 * sqrt(T)), margin, clicks, cost),
         CDUCB_Learner(n_arms, prices, M, eps, h, alpha, margin, clicks, cost)
     ]
 
@@ -154,7 +153,7 @@ titles = ["Instantaneous regret", "Instantaneous reward", "Cumulative regret", "
 
 ucb1_label = "Stationary UCB1"
 exp3_label = "EXP3"
-swucb_label = r"$SW\ UCB1,\ window\ size=\frac{1}{2}\ \sqrt{T}$"
+swucb_label = r"$SW\ UCB1,\ window\ size=\frac{7}{2}\ \sqrt{T}$"
 cducb_label = "CUSUM UCB1"
 labels = [ucb1_label, exp3_label, swucb_label, cducb_label]
 
