@@ -32,13 +32,10 @@ rewards = (margin * prb - cost) * clicks
 opt_per_phase = rewards.max(axis=1)
 optimum_per_round = np.zeros(T)
 
-# window_size
+# CUSUM UCB1 parameters
 M = 10
-# exploration term
 eps = 0.1
-# detection threshold
 h = 2 * np.log(T)
-# scaling
 alpha = 0.1
 
 rewards_experiment = [[] for _ in range(n_alg)]
@@ -84,9 +81,6 @@ cumstd_regret = [[(np.cumsum(regret[alg]))[:i].std() for i in range(1, T + 1)] f
 std_reward = [np.std(rewards_experiment[i], axis=0) for i in range(n_alg)]
 # Standard deviation cumulative reward
 cumstd_reward = [[(np.cumsum(rewards_experiment[alg]))[:i].std() for i in range(1, T + 1)] for alg in range(n_alg)]
-
-print(f"CUM_REGRET[365] CUMSUM {cum_regret[2][364]} \t SW {cum_regret[1][364]}")
-
 
 # Plot results
 dataset = np.array([[

@@ -13,12 +13,12 @@ prb = np.array([
 ])
 
 T = 365
-n_experiments = 30
+n_experiments = 100
 n_arms = len(prices)
 n_phases = 3
 phases_len = int(T / n_phases)
 
-n_alg = 6
+n_alg = 24
 
 margin = (prices - 8)
 clicks = int(c1.num_clicks(2))
@@ -28,8 +28,9 @@ rewards = (margin * prb - cost) * clicks
 opt_per_phase = rewards.max(axis=1)
 optimum_per_round = np.zeros(T)
 
+# CUSUM UCB1 parameters
 M = 10
-# eps = 0.4
+eps = 0.1
 h = 2 * np.log(T)
 alpha = 0.1
 
@@ -39,6 +40,19 @@ for e in range(0, n_experiments):
     env = [Non_Stationary_Environment(prb, T, n_phases) for _ in range(n_alg)]
 
     learner = [
+        # CDUCB1 with M = 10
+        CDUCB_Learner(n_arms, prices, 10, eps, h, alpha, margin, clicks, cost),
+        # CDUCB1 with M = 20
+        CDUCB_Learner(n_arms, prices, 20, eps, h, alpha, margin, clicks, cost),
+        # CDUCB1 with M = 30
+        CDUCB_Learner(n_arms, prices, 30, eps, h, alpha, margin, clicks, cost),
+        # CDUCB1 with M = 50
+        CDUCB_Learner(n_arms, prices, 50, eps, h, alpha, margin, clicks, cost),
+        # CDUCB1 with M = 80
+        CDUCB_Learner(n_arms, prices, 80, eps, h, alpha, margin, clicks, cost),
+        # CDUCB1 with M = 100
+        CDUCB_Learner(n_arms, prices, 100, eps, h, alpha, margin, clicks, cost),
+
         # CDUCB1 with epsilon = 0.1
         CDUCB_Learner(n_arms, prices, M, 0.1, h, alpha, margin, clicks, cost),
         # CDUCB1 with epsilon = 0.2
@@ -50,7 +64,33 @@ for e in range(0, n_experiments):
         # CDUCB1 with epsilon = 0.5
         CDUCB_Learner(n_arms, prices, M, 0.5, h, alpha, margin, clicks, cost),
         # CDUCB1 with epsilon = 0.8
-        CDUCB_Learner(n_arms, prices, M, 0.8, h, alpha, margin, clicks, cost)
+        CDUCB_Learner(n_arms, prices, M, 0.8, h, alpha, margin, clicks, cost),
+
+        # CDUCB1 with h = logT
+        CDUCB_Learner(n_arms, prices, M, eps, np.log(T), alpha, margin, clicks, cost),
+        # CDUCB1 with h = 2logT
+        CDUCB_Learner(n_arms, prices, M, eps, 2 * np.log(T), alpha, margin, clicks, cost),
+        # CDUCB1 with h = 4logT
+        CDUCB_Learner(n_arms, prices, M, eps, 4 * np.log(T), alpha, margin, clicks, cost),
+        # CDUCB1 with h = 5logT
+        CDUCB_Learner(n_arms, prices, M, eps, 5 * np.log(T), alpha, margin, clicks, cost),
+        # CDUCB1 with h = 8logT
+        CDUCB_Learner(n_arms, prices, M, eps, 8 * np.log(T), alpha, margin, clicks, cost),
+        # CDUCB1 with h = 10logT
+        CDUCB_Learner(n_arms, prices, M, eps, 10 * np.log(T), alpha, margin, clicks, cost),
+
+        # CDUCB1 with alpha = 0.05
+        CDUCB_Learner(n_arms, prices, M, eps, h, 0.05, margin, clicks, cost),
+        # CDUCB1 with alpha = 0.1
+        CDUCB_Learner(n_arms, prices, M, eps, h, 0.1, margin, clicks, cost),
+        # CDUCB1 with alpha = 0.2
+        CDUCB_Learner(n_arms, prices, M, eps, h, 0.2, margin, clicks, cost),
+        # CDUCB1 with alpha = 0.3
+        CDUCB_Learner(n_arms, prices, M, eps, h, 0.3, margin, clicks, cost),
+        # CDUCB1 with alpha = 0.5
+        CDUCB_Learner(n_arms, prices, M, eps, h, 0.5, margin, clicks, cost),
+        # CDUCB1 with alpha = 0.7
+        CDUCB_Learner(n_arms, prices, M, eps, h, 0.7, margin, clicks, cost),
     ]
     
     for t in range(0, T):
@@ -77,11 +117,12 @@ cum_regret = [np.cumsum(regret[i]) for i in range(n_alg)]
 cumstd_regret = [[(np.cumsum(regret[alg]))[:i].std() for i in range(1, T + 1)] for alg in range(n_alg)]
 
 # Plot results
-dataset = np.array([[
-    [cum_regret[i], cumstd_regret[i]]
-] for i in range(n_alg)])
-
-titles = ["Cumulative regret"]
+cducb_M1_label = r"$CD\ UCB1,\ M=10 $"
+cducb_M2_label = r"$CD\ UCB1,\ M=20 $"
+cducb_M3_label = r"$CD\ UCB1,\ M=30 $"
+cducb_M4_label = r"$CD\ UCB1,\ M=50 $"
+cducb_M5_label = r"$CD\ UCB1,\ M=80 $"
+cducb_M6_label = r"$CD\ UCB1,\ M=100 $"
 
 cducb_e1_label = r"$CD\ UCB1,\ \epsilon=0.1 $"
 cducb_e2_label = r"$CD\ UCB1,\ \epsilon=0.2 $"
@@ -89,7 +130,34 @@ cducb_e3_label = r"$CD\ UCB1,\ \epsilon=0.3 $"
 cducb_e4_label = r"$CD\ UCB1,\ \epsilon=0.4 $"
 cducb_e5_label = r"$CD\ UCB1,\ \epsilon=0.5 $"
 cducb_e6_label = r"$CD\ UCB1,\ \epsilon=0.8 $"
-labels = [cducb_e1_label, cducb_e2_label, cducb_e3_label, cducb_e4_label, cducb_e5_label, cducb_e6_label]
 
-plotter = Plotter(dataset, optimum_per_round, titles, labels, T)
-plotter.plots()
+cducb_h1_label = r"$CD\ UCB1,\ h=\log{T} $"
+cducb_h2_label = r"$CD\ UCB1,\ h=2\log{T} $"
+cducb_h3_label = r"$CD\ UCB1,\ h=4\log{T} $"
+cducb_h4_label = r"$CD\ UCB1,\ h=5\log{T} $"
+cducb_h5_label = r"$CD\ UCB1,\ h=8\log{T} $"
+cducb_h6_label = r"$CD\ UCB1,\ h=10\log{T} $"
+
+cducb_a1_label = r"$CD\ UCB1,\ \alpha=0.05 $"
+cducb_a2_label = r"$CD\ UCB1,\ \alpha=0.1 $"
+cducb_a3_label = r"$CD\ UCB1,\ \alpha=0.2 $"
+cducb_a4_label = r"$CD\ UCB1,\ \alpha=0.3 $"
+cducb_a5_label = r"$CD\ UCB1,\ \alpha=0.5 $"
+cducb_a6_label = r"$CD\ UCB1,\ \alpha=0.7 $"
+
+
+labels = [
+    [cducb_M1_label, cducb_M2_label, cducb_M3_label, cducb_M4_label, cducb_M5_label, cducb_M6_label],
+    [cducb_e1_label, cducb_e2_label, cducb_e3_label, cducb_e4_label, cducb_e5_label, cducb_e6_label],
+    [cducb_h1_label, cducb_h2_label, cducb_h3_label, cducb_h4_label, cducb_h5_label, cducb_h6_label],
+    [cducb_a1_label, cducb_a2_label, cducb_a3_label, cducb_a4_label, cducb_a5_label, cducb_a6_label]
+]
+
+for graph in range(4):
+    dataset = np.array([[
+        [cum_regret[graph*6+i], cumstd_regret[graph*6+i]]
+    ] for i in range(6)])
+
+    titles = ["Cumulative regret"]
+    plotter = Plotter(dataset, optimum_per_round, titles, labels[graph], T)
+    plotter.plots()

@@ -7,19 +7,26 @@ from Learners import CDUCB_Learner
 from plotter import Plotter
 import numpy as np
 from math import sqrt
-import json
 
 c1 = Customer('C1', -0.0081, 0.97, 32, 3.8, -1.5, 0.1, 100)
 prices = np.array([10, 20, 30, 40, 50])
 
-# Get probabilities from a file .json
-with open('probabilities.json', 'r') as file:
-    probabilities = json.load(file)
-prb = np.array(probabilities['prb_step5'][0])
-prb_long = np.array(probabilities['prb_step6'][0])
+prb = np.array([
+    [0.86, 0.7, 0.55, 0.27, 0.18],
+    [0.4, 0.51, 0.66, 0.74, 0.81],
+    [0.71, 0.58, 0.45, 0.2, 0.09]
+])
+
+prb_long = np.array([
+	[0.86, 0.7, 0.55, 0.27, 0.18],
+    [0.4, 0.51, 0.66, 0.74, 0.81],
+    [0.71, 0.58, 0.45, 0.2, 0.09],
+    [0.35, 0.42, 0.67, 0.74, 0.8],
+    [0.82, 0.7, 0.46, 0.27, 0.14]
+])
 
 T = 365
-n_experiments = 10
+n_experiments = 100
 n_arms = len(prices)
 
 margin = (prices - 8)
@@ -46,13 +53,10 @@ opt_per_phase_long = rewards_long.max(axis=1)
 optimum_per_round = np.zeros(T)
 optimum_per_round_long = np.zeros(T)
 
-# window_size
+# CUSUM UCB1 parameters
 M = 10
-# exploration term
-eps = 0.2
-# detection threshold
-h = 10 * np.log(T)
-# scaling
+eps = 0.1
+h = 2 * np.log(T)
 alpha = 0.1
 
 rewards_experiment = [[] for _ in range(n_alg)]
