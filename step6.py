@@ -1,11 +1,10 @@
 from Customer import *
-from UCB1_Learner import *
-from EXP3_Learner import *
-from Non_Stationary_Environment import *
-from SWUCB_Learner import *
-from CDUCB_Learner import *
-from plotResults import Plotter
-from matplotlib import pyplot as plt
+from Environment import Non_Stationary_Environment
+from Learners import UCB1_Learner_ns as UCB1_Learner
+from Learners import EXP3_Learner
+from Learners import SWUCB_Learner
+from Learners import CDUCB_Learner
+from plotter import Plotter
 import numpy as np
 from math import sqrt
 import json
@@ -16,10 +15,11 @@ prices = np.array([10, 20, 30, 40, 50])
 # Get probabilities from a file .json
 with open('probabilities.json', 'r') as file:
     probabilities = json.load(file)
-prb = np.array(probabilities['prb_step6'][0])
+prb = np.array(probabilities['prb_step5'][0])
+prb_long = np.array(probabilities['prb_step6'][0])
 
 T = 365
-n_experiments = 50
+n_experiments = 10
 n_arms = len(prices)
 
 margin = (prices - 8)
@@ -30,13 +30,14 @@ rewards = (margin * prb - cost) * clicks
 # UCB1, EXP3, SWUCB1, CUSUM
 n_alg = 4
 
-n_phases = 5
+n_phases = 3
 phases_len = int(T / n_phases)
 
 # long: refers to setting with higher non-stationarity degree (more phases)
 n_phases_long = 25
 phases_len_long = int(T / n_phases_long)
-prb_long = np.tile(prb, reps=(5, 1))
+prb_long = np.tile(prb_long, reps=(5, 1))
+
 rewards_long = (margin * prb_long - cost) * clicks
 
 opt_per_phase = rewards.max(axis=1)
@@ -48,18 +49,18 @@ optimum_per_round_long = np.zeros(T)
 # window_size
 M = 10
 # exploration term
-eps = 0.15
+eps = 0.2
 # detection threshold
-h = 3 * np.log(T)
+h = 10 * np.log(T)
 # scaling
 alpha = 0.1
 
-rewards_experiment = [[] for i in range(n_alg)]
-rewards_experiment_long = [[] for i in range(n_alg)]
+rewards_experiment = [[] for _ in range(n_alg)]
+rewards_experiment_long = [[] for _ in range(n_alg)]
 
 for e in range(0, n_experiments):
-    env = [Non_Stationary_Environment(prb, T, n_phases) for i in range(n_alg)]
-    env_long = [Non_Stationary_Environment(prb_long, T, n_phases_long)for i in range(n_alg)]
+    env = [Non_Stationary_Environment(prb, T, n_phases) for _ in range(n_alg)]
+    env_long = [Non_Stationary_Environment(prb_long, T, n_phases_long) for _ in range(n_alg)]
 
     learner = [
         UCB1_Learner(n_arms, prices, margin, clicks, cost),
@@ -157,5 +158,5 @@ swucb_label = r"$SW\ UCB1,\ window\ size=\frac{7}{2}\ \sqrt{T}$"
 cducb_label = "CUSUM UCB1"
 labels = [ucb1_label, exp3_label, swucb_label, cducb_label]
 
-plotter = Plotter(dataset, optimum_per_round, titles, labels, T)
+plotter = Plotter(dataset, [optimum_per_round, optimum_per_round_long], titles, labels, T)
 plotter.subplots()

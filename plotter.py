@@ -1,5 +1,4 @@
 from matplotlib import pyplot as plt
-import numpy as np
 
 class Plotter():
 	"""
@@ -34,7 +33,7 @@ class Plotter():
 					self.x,
 					self.dataset[curve][graph][0] + self.dataset[curve][graph][1],
 					self.dataset[curve][graph][0] - self.dataset[curve][graph][1],
-					alpha=0.25
+					alpha=0.15
 				)
 			if (self.titles[graph].split()[0].lower() == "instantaneous"):
 				if (self.titles[graph].split()[-1].lower() == "regret"):
@@ -72,7 +71,7 @@ class Plotter():
 					self.x,
 					self.dataset[0][curve][graph][0] + self.dataset[0][curve][graph][1],
 					self.dataset[0][curve][graph][0] - self.dataset[0][curve][graph][1],
-					alpha=0.25
+					alpha=0.15
 				)
 			if (self.titles[graph].split()[0].lower() == "instantaneous"):
 				if (self.titles[graph].split()[-1].lower() == "regret"):
@@ -85,7 +84,7 @@ class Plotter():
 				else:
 					axes[0].plot(
 						self.x,
-						self.optimal,
+						self.optimal[0],
 						'k--',
 						label="Optimum"
 					)
@@ -106,7 +105,7 @@ class Plotter():
 					self.x,
 					self.dataset[1][curve][graph][0] + self.dataset[1][curve][graph][1],
 					self.dataset[1][curve][graph][0] - self.dataset[1][curve][graph][1],
-					alpha=0.25
+					alpha=0.15
 				)
 			if (self.titles[graph].split()[0].lower() == "instantaneous"):
 				if (self.titles[graph].split()[-1].lower() == "regret"):
@@ -119,10 +118,10 @@ class Plotter():
 				else:
 					axes[1].plot(
 						self.x,
-						self.optimal,
+						self.optimal[1],
 						'k--',
 						label="Optimum"
 					)
 			axes[1].legend(loc=0)
 			
-			plt.show()		
+			plt.show()
