@@ -1,19 +1,18 @@
 from Customer import *
-from UCB1_Learner import *
-from Non_Stationary_Environment import *
-from SWUCB_Learner import *
-from CDUCB_Learner import *
-from plotResults import Plotter
-from matplotlib import pyplot as plt
+from Environment import Non_Stationary_Environment
+from Learners import UCB1_Learner_ns as UCB1_Learner
+from Learners import SWUCB_Learner
+from Learners import CDUCB_Learner
+from plotter import Plotter
 import numpy as np
-from math import sqrt, log
+from math import sqrt
 
 c1 = Customer('C1', -0.0081, 0.97, 32, 3.8, -1.5, 0.1, 100)
 prices = np.array([10, 20, 30, 40, 50])
 prb = np.array([
-    [0.95, 0.70, 0.53, 0.28, 0.14],
-    [0.05, 0.25, 0.83, 0.95, 0.45],
-    [0.75, 0.64, 0.06, 0.62, 0.82]
+    [0.8, 0.70, 0.53, 0.28, 0.14],
+    [0.4, 0.5, 0.65, 0.75, 0.8],
+    [0.7, 0.6, 0.46, 0.19, 0.07]
 ])
 
 T = 365
@@ -42,10 +41,10 @@ h = 2 * np.log(T)
 # scaling
 alpha = 0.01
 
-rewards_experiment = [[] for i in range(n_alg)]
+rewards_experiment = [[] for _ in range(n_alg)]
 
 for e in range(0, n_experiments):
-    env = [Non_Stationary_Environment(prb, T, n_phases) for i in range(n_alg)]
+    env = [Non_Stationary_Environment(prb, T, n_phases) for _ in range(n_alg)]
     
     learner = [
         UCB1_Learner(n_arms, prices, margin, clicks, cost),
