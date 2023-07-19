@@ -3,6 +3,7 @@ import math
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import RBF, ConstantKernel as C
 from matplotlib import pyplot as plt
+import copy
 
 class Learner:
 	def __init__(self, n_arms, arms):
@@ -64,6 +65,123 @@ class UCB1_Learner(Learner):
 		self.t += 1
 
 
+		
+class TS_Context_Learner(Learner):
+	def __init__(self, n_arms, arms,margin):
+		super().__init__(n_arms, arms)
+		self.beta_parameters = np.ones((1, n_arms, 2))
+		self.margin=margin
+		
+		self.pulled_arms_idx=[]
+		self.pulled_features=[]
+		self.contexts=[{}]
+
+	def pull_arm(self, features):
+		for i,context in enumerate(self.contexts):
+			if context.items() <= features.items():
+				return np.argmax(np.random.beta(self.beta_parameters[i,:,0], self.beta_parameters[i,:,1])*self.margin[:])
+		return None
+
+	def update(self, pulled_arm, reward,sold,clicks, features):
+		self.t+=1
+		self.update_observations(pulled_arm, reward, features)
+		
+		for i,context in enumerate(self.contexts):
+			if context.items() <= features.items():
+				self.beta_parameters[i, pulled_arm, 0] = self.beta_parameters[i, pulled_arm, 0] + sold
+				self.beta_parameters[i, pulled_arm, 1] = self.beta_parameters[i, pulled_arm, 1] + clicks - sold
+		
+	def update_observations(self,arm_idx, reward, features):
+		super().update_observations(arm_idx,reward)
+		self.pulled_arms_idx.append(arm_idx)
+		self.pulled_features.append(features)
+
+	def updateContexts(self, contexts):
+		new_beta_parameters = np.ones((len(contexts), self.n_arms, 2))
+		for i, new_context in enumerate(contexts):
+			for j, old_context in enumerate(self.contexts):
+				if old_context.items() <= new_context.items():
+					new_beta_parameters[i] = copy.deepcopy(self.beta_parameters[j])
+					
+		self.contexts = contexts
+		self.beta_parameters = new_beta_parameters
+		
+		
+class UCB1_Context_Learner(Learner):
+	def __init__(self, n_arms, arms):
+		super().__init__(n_arms, arms)
+		
+		self.rewards_per_arm = np.empty((1, n_arms), dtype='O')
+		for i in range(n_arms):
+			self.rewards_per_arm[0, i] = []
+		
+		self.pulled_arms_counts = np.zeros((1, n_arms))
+		self.ucb_values = [0] * n_arms
+		
+		self.pulled_arms_idx=[]
+		self.pulled_features=[]
+		self.contexts=[{}]
+
+	def pull_arm(self, features):
+		for i,context in enumerate(self.contexts):
+			if context.items() <= features.items():
+				
+				for arm in range(self.n_arms):
+					if len(self.rewards_per_arm[i, arm]) == 0:
+						return arm
+				
+				average_reward = np.mean(self.rewards_per_arm[i, arm])
+				exploration_term = math.sqrt(2 * math.log(self.t) / self.pulled_arms_counts[i, arm])
+				self.ucb_values[arm] = average_reward + exploration_term
+				
+				return np.argmax(self.ucb_values)
+		return None
+
+	def update(self, pulled_arm, reward, features):
+		self.update_observations(pulled_arm, reward, features)
+		for i,context in enumerate(self.contexts):
+			if context.items() <= features.items():
+				self.rewards_per_arm[i, pulled_arm].append(reward)
+				self.pulled_arms_counts[i, pulled_arm] += 1
+		self.t += 1
+	
+	def update_observations(self, arm_idx, reward, features):
+		self.collected_rewards = np.append(self.collected_rewards, reward)
+		self.pulled_arms.append(self.arms[arm_idx])
+		self.pulled_arms_idx.append(arm_idx)
+		self.pulled_features.append(features)
+
+	def updateContexts(self, contexts):
+		new_rewards_per_arm = np.empty((len(contexts), self.n_arms), dtype='O')
+		for j in range(self.n_arms):
+			for i in range(len(contexts)):
+				new_rewards_per_arm[i,j] = []
+		new_pulled_arms_counts = np.zeros((len(contexts), self.n_arms))
+		
+		for i, new_context in enumerate(contexts):
+			for j, old_context in enumerate(self.contexts):
+				if old_context.items() <= new_context.items():
+					new_rewards_per_arm[i] =  copy.deepcopy(self.rewards_per_arm[j])
+					new_pulled_arms_counts[i] = copy.deepcopy(self.pulled_arms_counts[j])
+					
+		self.rewards_per_arm = new_rewards_per_arm
+		self.pulled_arms_counts = new_pulled_arms_counts
+		self.contexts = contexts
+		
+		# self.contexts = contexts
+		# self.rewards_per_arm = np.empty((0, n_arms, 0))
+		# self.pulled_arms_counts = np.zeros((0, n_arms))
+
+		# for context in contexts:
+			# self.rewards_per_arm = np.append(self.rewards_per_arm, np.empty(n_arms, 0))
+			# self.pulled_arms_counts = np.append(self.pulled_arms_counts, np.zeros(n_arms))
+
+			# for i,feature in enumerate(self.pulled_features):
+				# if context.items() <= feature.items():
+					# self.rewards_per_arm[-1, pulled_arms_idx[i]] = np.append(self.rewards_per_arm[-1, pulled_arms_idx[i]], self.collected_rewards[i])
+					# self.pulled_arms_counts[i, pulled_arm] += 1
+		
+		
 class TS_Learner3(Learner):
 	def __init__(self, n_arms, arms,margin):
 		super().__init__(n_arms, arms)
@@ -162,9 +280,9 @@ class GP_Context_Learner(GPLearner):
 
 		self.pulled_arms_idx=[]
 		self.pulled_features=[]
-		self.contexts=[]
-		self.contexted_pulled_arms=[]
-		self.contexted_collected_rewards=[]
+		self.contexts=[{}]
+		self.contexted_pulled_arms=[[]]
+		self.contexted_collected_rewards=[[]]
 
 	def update_observations(self,arm_idx, reward, features):
 		super().update_observations(arm_idx,reward)
@@ -177,15 +295,11 @@ class GP_Context_Learner(GPLearner):
 				break
 
 	def update_model(self, features):
-		if self.contexts != []:
-			for i,context in enumerate(self.contexts):
-				if context.items() <= features.items():
-					x=np.atleast_2d(self.contexted_pulled_arms[i]).T
-					y=self.contexted_collected_rewards[i]
-					break
-		else:
-			x=np.atleast_2d(self.pulled_arms).T
-			y=self.collected_rewards
+		for i,context in enumerate(self.contexts):
+			if context.items() <= features.items():
+				x=np.atleast_2d(self.contexted_pulled_arms[i]).T
+				y=self.contexted_collected_rewards[i]
+				break
 		
 		self.gp.fit(x,y)
 		self.means, self.sigmas = self.gp.predict(np.atleast_2d(self.arms).T, return_std=True)
