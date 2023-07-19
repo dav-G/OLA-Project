@@ -33,13 +33,13 @@ opt_per_phase = rewards.max(axis=1)
 optimum_per_round = np.zeros(T)
 
 # window_size
-M = 100
+M = 10
 # exploration term
-eps = 0.1
+eps = 0.2
 # detection threshold
-h = 2 * np.log(T)
+h = 10 * np.log(T)
 # scaling
-alpha = 0.01
+alpha = 0.1
 
 rewards_experiment = [[] for _ in range(n_alg)]
 
@@ -48,7 +48,7 @@ for e in range(0, n_experiments):
     
     learner = [
         UCB1_Learner(n_arms, prices, margin, clicks, cost),
-        SWUCB_Learner(n_arms, prices, int(0.5 * sqrt(T)), margin, clicks, cost),
+        SWUCB_Learner(n_arms, prices, int(7/2 * sqrt(T)), margin, clicks, cost),
         CDUCB_Learner(n_arms, prices, M, eps, h, alpha, margin, clicks, cost)
     ]
     
@@ -96,7 +96,7 @@ dataset = np.array([[
 titles = ["Instantaneous regret", "Instantaneous reward", "Cumulative regret", "Cumulative reward"]
 
 ucb1_label = "Stationary UCB1"
-swucb_label = r"$SW\ UCB1,\ window\ size=\frac{1}{2}\ T$"
+swucb_label = r"$SW\ UCB1,\ window\ size=\frac{7}{2}\ T$"
 cducb_label = "CUSUM UCB1"
 labels = [ucb1_label, swucb_label, cducb_label]
 
