@@ -50,7 +50,7 @@ class Plotter():
 						'k--',
 						label="Optimum"
 					)
-			plt.legend(loc=2)
+			plt.legend(loc=0)
 			plt.show()
 
 	def subplots(self):

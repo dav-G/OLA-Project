@@ -29,7 +29,7 @@ class BiddingEnvironment():
 		i = int(np.random.rand() * len(self.customers))
 		
 		clicks = np.random.normal(self.customers[i].num_clicks(self.bids[pulled_arm]), self.sigmas[pulled_arm])
-		click_cost = np.random.normal(self.customers[i].click_cost(self.bids[pulled_arm]), self.sigmas[pulled_arm]/10)
+		click_cost = np.random.normal(self.customers[i].click_cost(self.bids[pulled_arm]), self.sigmas[pulled_arm]/50)
 		
 		conv_prob = self.customers[i].conversion_probability(self.best_price)
 		
