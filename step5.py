@@ -10,9 +10,9 @@ from math import sqrt
 c1 = Customer('C1', -0.0081, 0.97, 32, 3.8, -1.5, 0.1, 100)
 prices = np.array([10, 20, 30, 40, 50])
 prb = np.array([
-    [0.8, 0.70, 0.53, 0.28, 0.14],
-    [0.4, 0.5, 0.65, 0.75, 0.8],
-    [0.7, 0.6, 0.46, 0.19, 0.07]
+    [0.86, 0.7, 0.55, 0.27, 0.18],
+    [0.4, 0.51, 0.66, 0.74, 0.81],
+    [0.71, 0.58, 0.45, 0.2, 0.09]
 ])
 
 T = 365
@@ -35,9 +35,9 @@ optimum_per_round = np.zeros(T)
 # window_size
 M = 10
 # exploration term
-eps = 0.2
+eps = 0.1
 # detection threshold
-h = 10 * np.log(T)
+h = 2 * np.log(T)
 # scaling
 alpha = 0.1
 
@@ -84,6 +84,9 @@ cumstd_regret = [[(np.cumsum(regret[alg]))[:i].std() for i in range(1, T + 1)] f
 std_reward = [np.std(rewards_experiment[i], axis=0) for i in range(n_alg)]
 # Standard deviation cumulative reward
 cumstd_reward = [[(np.cumsum(rewards_experiment[alg]))[:i].std() for i in range(1, T + 1)] for alg in range(n_alg)]
+
+print(f"CUM_REGRET[365] CUMSUM {cum_regret[2][364]} \t SW {cum_regret[1][364]}")
+
 
 # Plot results
 dataset = np.array([[
