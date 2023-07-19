@@ -153,11 +153,11 @@ class UCB1_Context_Learner(Learner):
 				for arm in range(self.n_arms):
 					if len(self.rewards_per_arm[i, arm]) == 0:
 						return arm
-				
-				average_reward = np.mean(self.rewards_per_arm[i, arm])
-				exploration_term = math.sqrt(2 * math.log(self.t) / self.pulled_arms_counts[i, arm])
-				self.ucb_values[arm] = average_reward + exploration_term
-				
+						
+					average_reward = np.mean(self.rewards_per_arm[i, arm])
+					exploration_term = math.sqrt(2 * math.log(max([1, self.t / len(self.contexts)])) / self.pulled_arms_counts[i, arm])
+					self.ucb_values[arm] = average_reward + exploration_term
+
 				return np.argmax(self.ucb_values)
 		return None
 

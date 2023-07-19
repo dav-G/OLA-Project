@@ -82,10 +82,10 @@ bids = np.linspace(min_bid,max_bid,n_arms_ad)
 prices = np.array([10, 20, 30, 40, 50])
 margin=(prices-8)
 
-sigma = 0
+sigma = 5
 
-T = 120 #horizon ricordarsi di cambiare prima del run finale perchè deve essere 365
-n_experiment = 3
+T = 365 #horizon ricordarsi di cambiare prima del run finale perchè deve essere 365
+n_experiment = 10
 
 customers = []
 customers.append(Customer('C1', -0.0081, 0.97, 32, 3.8, -1.5, 0.1, 100, {'student': True, 'commuter': True}))
@@ -96,16 +96,18 @@ gpucb_rewards_per_experiment=[]
 gpts_rewards_per_experiment=[]
 
 for e in range(0,n_experiment):
+	print(f'Experiment {e}')
+
 	env = ContextEnvironment(prices, bids, sigma, customers)
 	gpts_learner = GPTS_Context_Learner(n_arms = n_arms_ad, arms = bids)
 	gpucb_learner = GPUCB_Context_Learner(n_arms = n_arms_ad, arms = bids)
 	ucb1_learner = UCB1_Context_Learner(n_arms_pr,prices)
 	ts_learner = TS_Context_Learner(n_arms_pr,prices,margin)
 
-	gpts_learner.updateContexts([{'student': True}, {'student': False, 'commuter': True}, {'student': False, 'commuter': False}])
-	gpucb_learner.updateContexts([{'student': True}, {'student': False, 'commuter': True}, {'student': False, 'commuter': False}])
-	ts_learner.updateContexts([{'student': True}, {'student': False, 'commuter': True}, {'student': False, 'commuter': False}])
-	ucb1_learner.updateContexts([{'student': True}, {'student': False, 'commuter': True}, {'student': False, 'commuter': False}])
+	# gpts_learner.updateContexts([{'student': True}, {'student': False, 'commuter': True}, {'student': False, 'commuter': False}])
+	# gpucb_learner.updateContexts([{'student': True}, {'student': False, 'commuter': True}, {'student': False, 'commuter': False}])
+	# ts_learner.updateContexts([{'student': True}, {'student': False, 'commuter': True}, {'student': False, 'commuter': False}])
+	# ucb1_learner.updateContexts([{'student': True}, {'student': False, 'commuter': True}, {'student': False, 'commuter': False}])
 	
 	for t in range (1,T+1):
 		features = env.getFeatures()
@@ -127,20 +129,20 @@ for e in range(0,n_experiment):
 		gpucb_learner.update(pulled_bid, reward, features)
 		ucb1_learner.update(pulled_price, reward, features)
 		
-		# if t%14 == 0:
-			# contexts = generateContext(n_arms_pr, ucb1_learner.collected_rewards, ucb1_learner.pulled_arms_idx, ucb1_learner.pulled_features, ['student', 'commuter'])
-			# ucb1_learner.updateContexts(contexts)
-			# print(f'1: Context at time {t} for experiment {e}: {contexts}')
-			# contexts = generateContext(n_arms_pr, ts_learner.collected_rewards, ts_learner.pulled_arms_idx, ts_learner.pulled_features, ['student', 'commuter'])
-			# ts_learner.updateContexts(contexts)
-			# print(f'2: Context at time {t} for experiment {e}: {contexts}')
+		if t%14 == 0:
+			contexts = generateContext(n_arms_pr, ucb1_learner.collected_rewards, ucb1_learner.pulled_arms_idx, ucb1_learner.pulled_features, ['student', 'commuter'])
+			ucb1_learner.updateContexts(contexts)
+			print(f'1: Context at time {t} for experiment {e}: {contexts}')
+			contexts = generateContext(n_arms_pr, ts_learner.collected_rewards, ts_learner.pulled_arms_idx, ts_learner.pulled_features, ['student', 'commuter'])
+			ts_learner.updateContexts(contexts)
+			print(f'2: Context at time {t} for experiment {e}: {contexts}')
 			
-			# contexts = generateContext(n_arms_ad,gpucb_learner.collected_rewards, gpucb_learner.pulled_arms_idx, gpucb_learner.pulled_features, ['student', 'commuter'])
-			# gpucb_learner.updateContexts(contexts)
-			# print(f'3: Context at time {t} for experiment {e}: {contexts}')
-			# contexts = generateContext(n_arms_ad, gpts_learner.collected_rewards, gpts_learner.pulled_arms_idx, gpts_learner.pulled_features, ['student', 'commuter'])
-			# gpts_learner.updateContexts(contexts)
-			# print(f'4: Context at time {t} for experiment {e}: {contexts}')
+			contexts = generateContext(n_arms_ad,gpucb_learner.collected_rewards, gpucb_learner.pulled_arms_idx, gpucb_learner.pulled_features, ['student', 'commuter'])
+			gpucb_learner.updateContexts(contexts)
+			print(f'3: Context at time {t} for experiment {e}: {contexts}')
+			contexts = generateContext(n_arms_ad, gpts_learner.collected_rewards, gpts_learner.pulled_arms_idx, gpts_learner.pulled_features, ['student', 'commuter'])
+			gpts_learner.updateContexts(contexts)
+			print(f'4: Context at time {t} for experiment {e}: {contexts}')
 
 	gpts_rewards_per_experiment.append(gpts_learner.collected_rewards)
 	gpucb_rewards_per_experiment.append(gpucb_learner.collected_rewards)
@@ -151,4 +153,4 @@ gpucb_rewards_per_experiment = np.array(gpucb_rewards_per_experiment)
 
 opt = np.average(getOptimal()[2])
 
-plot(opt, T, [gpts_rewards_per_experiment, gpucb_rewards_per_experiment], ['GPTS', 'GPUCB'])
+plot(opt, T, [gpucb_rewards_per_experiment, gpts_rewards_per_experiment], ['GPUCB', 'GPTS'])
