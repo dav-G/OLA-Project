@@ -1,4 +1,5 @@
 import numpy as np
+from math import floor
 
 class PricingEnvironment():
 	def __init__(self, prices, customers, prob):
@@ -76,9 +77,25 @@ class ContextEnvironment():
 	def getReward(self, pulled_price, pulled_bid):
 		i = self.i
 		
-		clicks = np.random.normal(self.customers[i].num_clicks(self.bids[pulled_bid]), self.sigmas[pulled_bid])
-		click_cost = np.random.normal(self.customers[i].click_cost(self.bids[pulled_bid]), self.sigmas[pulled_bid])
+		clicks = max(0,np.random.normal(self.customers[i].num_clicks(self.bids[pulled_bid]), self.sigmas[pulled_bid]))
+		click_cost = np.random.normal(self.customers[i].click_cost(self.bids[pulled_bid]), self.sigmas[pulled_bid]/10)
 		
-		sold = (self.prices[pulled_price] - self.item_cost) * np.random.binomial(max(clicks,0), self.customers[i].conversion_probability(self.prices[pulled_price]))
+		sold = np.random.binomial(clicks, self.customers[i].conversion_probability(self.prices[pulled_price]))
 		
-		return sold - clicks * click_cost
+		return (sold, clicks, click_cost,
+				self.customers[i].features)
+
+class Non_Stationary_Environment():
+    def __init__(self, probabilities, horizon, n_phases):
+        self.probabilities = probabilities
+        self.t = 0
+        self.horizon = horizon
+        self.n_phases = n_phases
+        self.phases_size = horizon / self.n_phases
+
+    def round(self, pulled_arm, clicks):    
+        current_phase = min(floor(self.t / self.phases_size), self.n_phases-1)
+        p = self.probabilities[current_phase][pulled_arm]
+        reward = np.random.binomial(clicks, p)
+        self.t += 1        
+        return reward
