@@ -54,3 +54,6 @@ for e in range(0, n_experiment):
 opt = getOptimal()[2][0]
 
 plot(opt, T, (gpucb_rewards_per_experiment, gpts_rewards_per_experiment), ('GPUCB', 'GPTS'))
+x = np.atleast_2d(bids).T
+gpucb_learner.plot(customers[0].num_clicks(x)*(customers[0].conversion_probability(30)*22-customers[0].click_cost(x)))
+gpts_learner.plot(customers[0].num_clicks(x)*(customers[0].conversion_probability(30)*22-customers[0].click_cost(x)))

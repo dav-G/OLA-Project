@@ -274,16 +274,16 @@ class GPLearner(Learner):
 		y_pred, sigma = self.gp.predict(x_pred, return_std=True)
 
 		plt.figure(0)
-		plt.title(f'Predicted clicks over budget')
-		plt.plot(x_pred, unknown_function, ':', label=r'True n(x) function')
-		plt.scatter(self.pulled_arms, self.collected_rewards, marker='o', label=r'Observed Clicks')
-		plt.plot(x_pred, y_pred, '-', label=r'Predicted Clicks')
+		plt.title(f'Predicted reward')
+		plt.plot(x_pred, unknown_function, ':', label=r'True reward function')
+		plt.scatter(self.pulled_arms, self.collected_rewards, marker='o', label=r'Observed Reward')
+		plt.plot(x_pred, y_pred, '-', label=r'Predicted Reward')
 		plt.fill(np.concatenate([x_pred, x_pred[::-1]]),
                  np.concatenate([y_pred - 1.96 * sigma * sigma_scale_factor,
                                  (y_pred + 1.96 * sigma * sigma_scale_factor)[::-1]]),
                  alpha=.2, fc='C2', ec='None', label='95% conf interval')
-		plt.xlabel('% Of Allocated Budget')
-		plt.ylabel('$n(x)$')
+		plt.xlabel('Bid')
+		plt.ylabel('$Reward$')
 		plt.legend(loc='lower right')
 		plt.show()	
 
