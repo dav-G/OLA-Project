@@ -59,6 +59,9 @@ eps = 0.1
 h = 2 * np.log(T)
 alpha = 0.1
 
+# EXP3 gamma
+gamma = 0.01
+
 rewards_experiment = [[] for _ in range(n_alg)]
 rewards_experiment_long = [[] for _ in range(n_alg)]
 
@@ -68,14 +71,14 @@ for e in range(0, n_experiments):
 
     learner = [
         UCB1_Learner(n_arms, prices, margin, clicks, cost),
-        EXP3_Learner(n_arms, prices, margin, clicks, cost),
+        EXP3_Learner(n_arms, prices, gamma, margin, clicks, cost),
         SWUCB_Learner(n_arms, prices, int(7/2 * sqrt(T)), margin, clicks, cost),
         CDUCB_Learner(n_arms, prices, M, eps, h, alpha, margin, clicks, cost)
     ]
     learner_long = [
         UCB1_Learner(n_arms, prices, margin, clicks, cost),
-        EXP3_Learner(n_arms, prices, margin, clicks, cost),
-        SWUCB_Learner(n_arms, prices, int(7/2 * sqrt(T)), margin, clicks, cost),
+        EXP3_Learner(n_arms, prices, gamma, margin, clicks, cost),
+        SWUCB_Learner(n_arms, prices, int(sqrt(T)), margin, clicks, cost),
         CDUCB_Learner(n_arms, prices, M, eps, h, alpha, margin, clicks, cost)
     ]
 
@@ -158,9 +161,13 @@ titles = ["Instantaneous regret", "Instantaneous reward", "Cumulative regret", "
 
 ucb1_label = "Stationary UCB1"
 exp3_label = "EXP3"
-swucb_label = r"$SW\ UCB1,\ window\ size=\frac{7}{2}\ \sqrt{T}$"
+swucb_w1_label = r"$SW\ UCB1,\ window\ size=\frac{7}{2}\ \sqrt{T}$"
+swucb_w2_label = r"$SW\ UCB1,\ window\ size=\sqrt{T}$"
 cducb_label = "CUSUM UCB1"
-labels = [ucb1_label, exp3_label, swucb_label, cducb_label]
+labels = [
+    [ucb1_label, exp3_label, swucb_w1_label, cducb_label],
+    [ucb1_label, exp3_label, swucb_w2_label, cducb_label]
+]
 
 plotter = Plotter(dataset, [optimum_per_round, optimum_per_round_long], titles, labels, T)
 plotter.subplots()

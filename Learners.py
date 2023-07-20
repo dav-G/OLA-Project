@@ -431,9 +431,9 @@ class CDUCB_Learner(UCB1_Learner_ns):
        self.collected_rewards = np.append(self.collected_rewards, reward)
 
 class EXP3_Learner(UCB1_Learner_ns):
-    def __init__(self, n_arms, arms, margin, clicks, cost):
+    def __init__(self, n_arms, arms, gamma, margin, clicks, cost):
         super().__init__(n_arms, arms, margin, clicks, cost)
-        self.gamma = np.sqrt(np.log(n_arms) / n_arms)
+        self.gamma =  gamma
         self.weights = np.full(n_arms, 1. / n_arms)
         self._initial_exploration = np.random.permutation(n_arms)
     
