@@ -7,19 +7,26 @@ from Learners import CDUCB_Learner
 from plotter import Plotter
 import numpy as np
 from math import sqrt
-import json
 
 c1 = Customer('C1', -0.0081, 0.97, 32, 3.8, -1.5, 0.1, 100)
 prices = np.array([10, 20, 30, 40, 50])
 
-# Get probabilities from a file .json
-with open('probabilities.json', 'r') as file:
-    probabilities = json.load(file)
-prb = np.array(probabilities['prb_step5'][0])
-prb_long = np.array(probabilities['prb_step6'][0])
+prb = np.array([
+    [0.86, 0.7, 0.55, 0.27, 0.18],
+    [0.4, 0.51, 0.66, 0.74, 0.81],
+    [0.71, 0.58, 0.45, 0.2, 0.09]
+])
+
+prb_long = np.array([
+    [0.86, 0.7, 0.55, 0.27, 0.18],
+    [0.4, 0.51, 0.66, 0.74, 0.81],
+    [0.71, 0.58, 0.45, 0.2, 0.09],
+    [0.35, 0.42, 0.67, 0.74, 0.8],
+    [0.82, 0.7, 0.46, 0.27, 0.14]
+])
 
 T = 365
-n_experiments = 10
+n_experiments = 100
 n_arms = len(prices)
 
 margin = (prices - 8)
@@ -46,14 +53,14 @@ opt_per_phase_long = rewards_long.max(axis=1)
 optimum_per_round = np.zeros(T)
 optimum_per_round_long = np.zeros(T)
 
-# window_size
+# CUSUM UCB1 parameters
 M = 10
-# exploration term
-eps = 0.2
-# detection threshold
-h = 10 * np.log(T)
-# scaling
+eps = 0.1
+h = 2 * np.log(T)
 alpha = 0.1
+
+# EXP3 gamma
+gamma = 0.01
 
 rewards_experiment = [[] for _ in range(n_alg)]
 rewards_experiment_long = [[] for _ in range(n_alg)]
@@ -64,14 +71,14 @@ for e in range(0, n_experiments):
 
     learner = [
         UCB1_Learner(n_arms, prices, margin, clicks, cost),
-        EXP3_Learner(n_arms, prices, margin, clicks, cost),
+        EXP3_Learner(n_arms, prices, gamma, margin, clicks, cost),
         SWUCB_Learner(n_arms, prices, int(7/2 * sqrt(T)), margin, clicks, cost),
         CDUCB_Learner(n_arms, prices, M, eps, h, alpha, margin, clicks, cost)
     ]
     learner_long = [
         UCB1_Learner(n_arms, prices, margin, clicks, cost),
-        EXP3_Learner(n_arms, prices, margin, clicks, cost),
-        SWUCB_Learner(n_arms, prices, int(7/2 * sqrt(T)), margin, clicks, cost),
+        EXP3_Learner(n_arms, prices, gamma, margin, clicks, cost),
+        SWUCB_Learner(n_arms, prices, int(sqrt(T)), margin, clicks, cost),
         CDUCB_Learner(n_arms, prices, M, eps, h, alpha, margin, clicks, cost)
     ]
 
@@ -154,9 +161,13 @@ titles = ["Instantaneous regret", "Instantaneous reward", "Cumulative regret", "
 
 ucb1_label = "Stationary UCB1"
 exp3_label = "EXP3"
-swucb_label = r"$SW\ UCB1,\ window\ size=\frac{7}{2}\ \sqrt{T}$"
+swucb_w1_label = r"$SW\ UCB1,\ window\ size=\frac{7}{2}\ \sqrt{T}$"
+swucb_w2_label = r"$SW\ UCB1,\ window\ size=\sqrt{T}$"
 cducb_label = "CUSUM UCB1"
-labels = [ucb1_label, exp3_label, swucb_label, cducb_label]
+labels = [
+    [ucb1_label, exp3_label, swucb_w1_label, cducb_label],
+    [ucb1_label, exp3_label, swucb_w2_label, cducb_label]
+]
 
 plotter = Plotter(dataset, [optimum_per_round, optimum_per_round_long], titles, labels, T)
 plotter.subplots()

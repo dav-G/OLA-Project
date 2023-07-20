@@ -65,7 +65,7 @@ class Plotter():
 				axes[0].plot(
 					self.x,
 					self.dataset[0][curve][graph][0],
-					label=self.labels[curve]
+					label=self.labels[0][curve]
 				)
 				axes[0].fill_between(
 					self.x,
@@ -99,7 +99,7 @@ class Plotter():
 				axes[1].plot(
 					self.x,
 					self.dataset[1][curve][graph][0],
-					label=self.labels[curve]
+					label=self.labels[1][curve]
 				)
 				axes[1].fill_between(
 					self.x,

@@ -1,8 +1,6 @@
 from Customer import *
 from Environment import Non_Stationary_Environment
-from Learners import UCB1_Learner_ns as UCB1_Learner
-from Learners import SWUCB_Learner
-from Learners import CDUCB_Learner
+from Learners import EXP3_Learner
 from plotter import Plotter
 import numpy as np
 from math import sqrt
@@ -12,17 +10,19 @@ prices = np.array([10, 20, 30, 40, 50])
 prb = np.array([
     [0.86, 0.7, 0.55, 0.27, 0.18],
     [0.4, 0.51, 0.66, 0.74, 0.81],
-    [0.71, 0.58, 0.45, 0.2, 0.09]
+    [0.71, 0.58, 0.45, 0.2, 0.09],
+    [0.35, 0.42, 0.67, 0.74, 0.8],
+    [0.82, 0.7, 0.46, 0.27, 0.14]
 ])
+prb = np.tile(prb, reps=(5, 1))
 
 T = 365
-n_experiments = 50
+n_experiments = 100
 n_arms = len(prices)
 n_phases = 3
 phases_len = int(T / n_phases)
 
-# UCB1, SWUCB1, CUSUM
-n_alg = 3
+n_alg = 6
 
 margin = (prices - 8)
 clicks = int(c1.num_clicks(2))
@@ -32,23 +32,26 @@ rewards = (margin * prb - cost) * clicks
 opt_per_phase = rewards.max(axis=1)
 optimum_per_round = np.zeros(T)
 
-# CUSUM UCB1 parameters
-M = 10
-eps = 0.1
-h = 2 * np.log(T)
-alpha = 0.1
-
-rewards_experiment = [[] for _ in range(n_alg)]
+rewards_experiment = [[] for i in range(n_alg)]
 
 for e in range(0, n_experiments):
     env = [Non_Stationary_Environment(prb, T, n_phases) for _ in range(n_alg)]
-    
+
     learner = [
-        UCB1_Learner(n_arms, prices, margin, clicks, cost),
-        SWUCB_Learner(n_arms, prices, int(7/2 * sqrt(T)), margin, clicks, cost),
-        CDUCB_Learner(n_arms, prices, M, eps, h, alpha, margin, clicks, cost)
+        # EXP3 gamma = 0.01
+        EXP3_Learner(n_arms, prices, 0.01, margin, clicks, cost),
+        # EXP3 gamma = 0.05
+        EXP3_Learner(n_arms, prices, 0.05, margin, clicks, cost),
+        # EXP3 gamma = 0.1
+        EXP3_Learner(n_arms, prices, 0.1, margin, clicks, cost),
+        # EXP3 gamma = 0.2
+        EXP3_Learner(n_arms, prices, 0.2, margin, clicks, cost),
+        # EXP3 gamma = 0.3
+        EXP3_Learner(n_arms, prices, 0.3, margin, clicks, cost),
+        # EXP3 gamma = sqrt( log(n_arms) / n_arms)
+        EXP3_Learner(n_arms, prices, np.sqrt(np.log(n_arms) /n_arms), margin, clicks, cost)
     ]
-    
+
     for t in range(0, T):
         for i in range(n_alg):
             pulled_arm = learner[i].pull_arm()
@@ -66,36 +69,27 @@ for i in range(n_phases):
     for alg in range(n_alg):
         # Regret
         regret[alg][t_index] = np.mean(opt_per_phase[i] - rewards_experiment[alg], axis=0)[t_index]
-        # Standard deviation instantaneous regret
-        std_regret[alg][t_index] = np.std(opt_per_phase[i] - rewards_experiment[alg], axis=0)[t_index]
 
-# Instantaneous reward
-inst_reward = [np.mean(rewards_experiment[i], axis=0) for i in range(n_alg)]
 # Cumulative regret
 cum_regret = [np.cumsum(regret[i]) for i in range(n_alg)]
-# Cumulative reward
-cum_reward = [np.cumsum(np.mean(rewards_experiment[i], axis=0)) for i in range(n_alg)]
 # Standard deviation cumulative regret
 cumstd_regret = [[(np.cumsum(regret[alg]))[:i].std() for i in range(1, T + 1)] for alg in range(n_alg)]
-# Standard deviation instantaneous reward
-std_reward = [np.std(rewards_experiment[i], axis=0) for i in range(n_alg)]
-# Standard deviation cumulative reward
-cumstd_reward = [[(np.cumsum(rewards_experiment[alg]))[:i].std() for i in range(1, T + 1)] for alg in range(n_alg)]
 
 # Plot results
 dataset = np.array([[
-    [regret[i], std_regret[i]],
-    [inst_reward[i], std_reward[i]],
-    [cum_regret[i], cumstd_regret[i]],
-    [cum_reward[i], cumstd_reward[i]]
+    [cum_regret[i], cumstd_regret[i]]
 ] for i in range(n_alg)])
 
-titles = ["Instantaneous regret", "Instantaneous reward", "Cumulative regret", "Cumulative reward"]
+titles = ["Cumulative regret"]
 
-ucb1_label = "Stationary UCB1"
-swucb_label = r"$SW\ UCB1,\ window\ size=\frac{7}{2}\ T$"
-cducb_label = "CUSUM UCB1"
-labels = [ucb1_label, swucb_label, cducb_label]
+exp3_1_label = r"$EXP3,\ gamma\ =\ 0.01$"
+exp3_2_label = r"$EXP3,\ gamma\ =\ 0.05$"
+exp3_3_label = r"$EXP3,\ gamma\ =\ 0.1$"
+exp3_4_label = r"$EXP3,\ gamma\ =\ 0.2$"
+exp3_5_label = r"$EXP3,\ gamma\ =\ 0.3$"
+exp3_6_label = r"$EXP3,\ gamma\ =\ \sqrt{\frac{\log(5)}{5}}$"
+
+labels = [exp3_1_label, exp3_2_label, exp3_3_label, exp3_4_label, exp3_5_label, exp3_6_label]
 
 plotter = Plotter(dataset, optimum_per_round, titles, labels, T)
 plotter.plots()
