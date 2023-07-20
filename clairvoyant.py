@@ -51,10 +51,16 @@ def getOptimal(f_print = False):
 			print('CUSTOMER {}'.format(C.name))
 			print('   Best price: {}'.format(best_price))
 			print('   Best bid: {}'.format(best_bid))
-			print('Total reward: {}'.format(sum(rewards)))
+			print('   Reward: {}'.format(rewards[-1]))
+		
+	best_price = prices[ np.argmax( [ np.average([ C.conversion_probability(price) * sell_margin(price) for C in customers ]) for price in prices] ) ]
+	best_bid = bids[ np.argmax( [ np.average([C.num_clicks(bid) * (C.conversion_probability(best_price) * sell_margin(best_price) - C.click_cost(bid)) for C in customers ])  for bid in bids] ) ]
+	reward = np.average([C.num_clicks(best_bid) * (C.conversion_probability(best_price) * sell_margin(best_price) - C.click_cost(best_bid)) for C in customers])
 		
 	if f_print:
 		print('Total reward: {}'.format(sum(rewards)))
+		print('Average reward: {}'.format(np.average(rewards)))
+		print(f'Reward pulling only one bid {best_bid} and one price {best_price}: {reward}')
 		
 	return (best_prices, best_bids, rewards)
 		
