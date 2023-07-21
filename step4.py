@@ -54,9 +54,7 @@ def generateContext(n_arms, rewards, pulled_arms, pulled_arms_features, features
 		prob1 = len(rewards1)/(len(rewards1) + len(rewards2)) - np.sqrt(-np.log(delta)/(2*len(rewards1) + 1))
 		prob2 = len(rewards2)/(len(rewards1) + len(rewards2)) - np.sqrt(-np.log(delta)/(2*len(rewards2) + 1))
 		
-		print(f'prob1: {prob1}, prob2: {prob2}, exp1: {expected_reward1}, exp2: {expected_reward2}, exp: {expected_reward}')
 		if prob1*expected_reward1 + prob2*expected_reward2 >= expected_reward:
-			print('SPLIT')
 			new_features = features.copy()
 			new_features.remove(feature)
 			context1 = [{}]
@@ -84,7 +82,7 @@ margin=(prices-8)
 
 sigma = 5
 
-T = 365 #horizon ricordarsi di cambiare prima del run finale perchè deve essere 365
+T = 365 
 n_experiment = 10
 
 customers = []
@@ -104,6 +102,8 @@ for e in range(0,n_experiment):
 	ucb1_learner = UCB1_Context_Learner(n_arms_pr,prices)
 	ts_learner = TS_Context_Learner(n_arms_pr,prices,margin)
 
+	# Uncomment the following to turn on Known Contexts
+	
 	# gpts_learner.updateContexts([{'student': True}, {'student': False, 'commuter': True}, {'student': False, 'commuter': False}])
 	# gpucb_learner.updateContexts([{'student': True}, {'student': False, 'commuter': True}, {'student': False, 'commuter': False}])
 	# ts_learner.updateContexts([{'student': True}, {'student': False, 'commuter': True}, {'student': False, 'commuter': False}])
@@ -112,7 +112,7 @@ for e in range(0,n_experiment):
 	for t in range (1,T+1):
 		features = env.getFeatures()
 		
-		#GPTS Learner
+		# GPTS Learner
 		pulled_bid = gpts_learner.pull_arm(features)
 		pulled_price = ts_learner.pull_arm(features)
 		sold, clicks, clicks_cost, features = env.getReward(pulled_price, pulled_bid)
@@ -120,7 +120,7 @@ for e in range(0,n_experiment):
 		gpts_learner.update(pulled_bid, reward, features)
 		ts_learner.update(pulled_price, sold * margin[pulled_price] / max([clicks,1]), sold, clicks, features)
 
-		#gpucb Learner
+		# GPUCB Learner
 		beta = 2 * np.log(n_arms_ad * t**2 * np.pi**2 / (6 * 0.05))
 		pulled_bid = gpucb_learner.pull_arm(beta, features)
 		pulled_price = ucb1_learner.pull_arm(features)
@@ -128,6 +128,8 @@ for e in range(0,n_experiment):
 		reward = sold * margin[pulled_price] - clicks * clicks_cost
 		gpucb_learner.update(pulled_bid, reward, features)
 		ucb1_learner.update(pulled_price, sold * margin[pulled_price] / max([clicks,1]), features)
+		
+		# Uncomment the following to turn on Context Generation
 		
 		# if t%14 == 0:
 			# contexts = generateContext(n_arms_pr, ucb1_learner.collected_rewards, ucb1_learner.pulled_arms_idx, ucb1_learner.pulled_features, ['student', 'commuter'])
