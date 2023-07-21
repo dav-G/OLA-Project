@@ -1,4 +1,3 @@
-from matplotlib import pyplot as plt
 import numpy as np
 
 from Environment import PricingEnvironment
@@ -6,7 +5,6 @@ from Learners import UCB1_Learner, TS_Learner
 from Customer import Customer
 
 from plotResults import plot
-from clairvoyant import getOptimal
 
 c1=(Customer('C1', -0.0081, 0.97, 32, 3.8, -1.5, 0.1, 100))
 

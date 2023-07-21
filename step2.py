@@ -4,7 +4,6 @@ import warnings
 warnings.warn = warn
 
 import numpy as np
-import matplotlib.pyplot as plt
 
 from Customer import Customer
 from Environment import BiddingEnvironment
@@ -13,7 +12,6 @@ from Learners import GPUCB_Learner, GPTS_Learner
 from plotResults import plot
 from clairvoyant import getOptimal
 
-
 n_arms = 100 
 min_bid = 0.0
 max_bid = 2.0
@@ -21,7 +19,7 @@ bids = np.linspace(min_bid,max_bid,n_arms)
 sigma = 10
 best_price = getOptimal()[0][0]
 
-T = 365 # horizon ricordarsi di cambiare prima del run finale perchè deve essere 365
+T = 365
 n_experiment = 5
 
 customers = []
@@ -49,7 +47,6 @@ for e in range(0, n_experiment):
 
   gpts_rewards_per_experiment.append(gpts_learner.collected_rewards)
   gpucb_rewards_per_experiment.append(gpucb_learner.collected_rewards)
-
 
 opt = getOptimal()[2][0]
 

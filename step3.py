@@ -1,19 +1,16 @@
-#%%
 def warn(*args, **kwargs):
     pass
 import warnings
 warnings.warn = warn
 
 import numpy as np
-import matplotlib.pyplot as plt
 from Customer import Customer
 from Environment import Environment
 from Learners import GPUCB_Learner, GPTS_Learner,TS_Learner3,UCB1_Learner3
 
 from plotResults import plot
-from clairvoyant import getOptimal
-# %%
-n_arms_ad=100 #da cambiare bisogna mettere 100 utilizzare uno minure solo per vedere le convergenze
+
+n_arms_ad=100
 n_arms_pr=5
 
 min_bid=0.0
@@ -22,14 +19,11 @@ bids=np.linspace(min_bid,max_bid,n_arms_ad)
 prices=np.linspace(10,50,n_arms_pr)
 sigma=10
 margin=(prices-8)
-T=365 #horizon ricordarsi di cambiare prima del run finale perchè deve essere 365
+T=365
 n_experiment=10
-
 
 customers = []
 customers.append(Customer('C1', -0.0081, 0.97, 32, 3.8, -1.5, 0.1, 100))
-
-# %%
 
 gpucb_rewards_per_experiment=[]
 gpts_rewards_per_experiment=[]
@@ -64,14 +58,9 @@ for e in range(0,n_experiment):
   gpts_rewards_per_experiment.append(gpts_learner.collected_rewards)
   gpucb_rewards_per_experiment.append(gpucb_learner.collected_rewards)
 
-
-# %%
-#prendere opt dal clairovoiant
 gpts_rewards_per_experiment=np.array(gpts_rewards_per_experiment)
 gpucb_rewards_per_experiment=np.array(gpucb_rewards_per_experiment)
 
 opt=1008.17
 
 plot(opt, T, (gpucb_rewards_per_experiment, gpts_rewards_per_experiment), ('GPUCB', 'GPTS'))
-
-# %%
