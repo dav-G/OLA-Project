@@ -60,7 +60,7 @@ h = 2 * np.log(T)
 alpha = 0.1
 
 # EXP3 gamma
-gamma = 0.01
+gamma = 0.05
 
 rewards_experiment = [[] for _ in range(n_alg)]
 rewards_experiment_long = [[] for _ in range(n_alg)]

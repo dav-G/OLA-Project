@@ -467,8 +467,7 @@ class EXP3_Learner(UCB1_Learner_ns):
     
     def update(self, pulled_arm, reward):
         reward = self.margin[pulled_arm] * reward - self.clicks * self.cost
-        normalized_reward = reward / (self.margin[pulled_arm] * self.clicks - self.clicks * self.cost)
-        self.weights[pulled_arm] *= np.exp(normalized_reward * (self.gamma / self.n_arms))
+        self.weights[pulled_arm] *= np.exp(reward * (self.gamma / self.n_arms))
         self.weights /= np.sum(self.weights)
         self.t += 1
         super().update_observations(pulled_arm, reward)
