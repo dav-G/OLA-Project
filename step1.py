@@ -15,8 +15,7 @@ prices=np.array(prices)
 T = 365
 n_experiments = 10
 
-#prb=c1.conversion_probability(np.array(prices))
-prb=np.array([0.95,0.75,0.53,0.28,0.14])
+prb=c1.conversion_probability(np.array(prices))
 margin=(prices-8)
 clicks=int(np.array(c1.num_clicks(2)))
 cost=np.array(c1.click_cost(2))
